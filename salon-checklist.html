@@ -131,6 +131,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 
 .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1C1C1E; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; z-index: 300; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
 .toast.show { opacity: 1; }
+
+/* DRAG & DROP */
+.drag-handle { font-size: 20px; color: #C7C7CC; cursor: grab; padding: 0 10px 0 0; flex-shrink: 0; user-select: none; touch-action: none; }
+.drag-handle:active { cursor: grabbing; }
+.admin-row.dragging { opacity: 0.4; background: #F2F2F7; }
+.admin-row.drag-over { border-top: 2px solid #1C1C1E; }
+.btn-small.blue { background: #E5F0FF; color: #0066CC; }
+.btn-small.green { background: #E5FFE8; color: #1A7A30; }
+.bereich-name-input { flex: 1; border: 1px solid #1C1C1E; border-radius: 8px; padding: 6px 10px; font-size: 15px; color: #1C1C1E; background: #fff; margin-right: 8px; }
+.move-select { border: 1px solid #E5E5EA; border-radius: 8px; padding: 4px 6px; font-size: 12px; color: #1C1C1E; background: #fff; margin-right: 6px; max-width: 110px; }
+.admin-row-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -548,6 +559,17 @@ function closeAdmin() { document.getElementById('admin-screen').classList.remove
 
 function renderAdmin() {
   let html = '';
+
+  // Bereiche umbenennen
+  html += `<div class="admin-section"><div class="admin-section-title">Bereiche umbenennen</div>`;
+  Object.entries(BEREICHE).forEach(([key,b]) => {
+    html += `<div class="admin-row">
+      <input class="bereich-name-input" id="bname-${key}" value="${b.name}" type="text">
+      <button class="btn-small green" onclick="bereichUmbenennen('${key}')">✓</button>
+    </div>`;
+  });
+  html += '</div>';
+
   // Monatszuweisung
   html += `<div class="admin-section"><div class="admin-section-title">Monatszuweisung – ${MONAT_ANZEIGE}</div>`;
   Object.entries(BEREICHE).forEach(([key,b]) => {
@@ -561,19 +583,38 @@ function renderAdmin() {
   });
   html += '</div>';
 
-  // Aufgaben pro Bereich und Tageszeit
+  // Aufgaben pro Bereich und Tageszeit – mit Drag & Drop + Verschieben
   Object.entries(BEREICHE).forEach(([key,b]) => {
     TAGESZEITEN.forEach(tz => {
       const aufgaben = b.aufgaben[tz.key]||[];
-      html += `<div class="admin-section"><div class="admin-section-title">${b.name} – ${tz.label}</div>`;
+      const othTz = TAGESZEITEN.filter(t=>t.key!==tz.key).map(t=>`<option value="${t.key}">${t.label}</option>`).join('');
+      html += `<div class="admin-section"><div class="admin-section-title">${b.name} – ${tz.label}</div>
+        <div class="drag-list" id="list-${key}-${tz.key}">`;
       aufgaben.forEach((a,i) => {
-        html += `<div class="admin-row"><div class="admin-row-label">${a}</div>
-          <button class="btn-small red" onclick="aufgabeLoeschen('${key}','${tz.key}',${i})">Löschen</button></div>`;
+        html += `<div class="admin-row" draggable="true"
+          ondragstart="dragStart(event,'${key}','${tz.key}',${i})"
+          ondragover="dragOver(event)"
+          ondragleave="dragLeave(event)"
+          ondrop="dragDrop(event,'${key}','${tz.key}',${i})"
+          ondragend="dragEnd(event)">
+          <span class="drag-handle">⠿</span>
+          <div class="admin-row-label">${a}</div>
+          <div class="admin-row-actions">
+            <select class="move-select" id="mv-${key}-${tz.key}-${i}">
+              <option value="">→ verschieben</option>
+              ${othTz}
+            </select>
+            <button class="btn-small blue" onclick="aufgabeVerschieben('${key}','${tz.key}',${i})">↗</button>
+            <button class="btn-small red" onclick="aufgabeLoeschen('${key}','${tz.key}',${i})">✕</button>
+          </div>
+        </div>`;
       });
-      html += `<div class="add-form">
-        <input class="admin-input" id="neu-${key}-${tz.key}" placeholder="Neue Aufgabe…" type="text">
-        <button class="add-btn" onclick="aufgabeHinzufuegen('${key}','${tz.key}')">+</button>
-      </div></div>`;
+      html += `</div>
+        <div class="add-form">
+          <input class="admin-input" id="neu-${key}-${tz.key}" placeholder="Neue Aufgabe…" type="text"
+            onkeydown="if(event.key==='Enter')aufgabeHinzufuegen('${key}','${tz.key}')">
+          <button class="add-btn" onclick="aufgabeHinzufuegen('${key}','${tz.key}')">+</button>
+        </div></div>`;
     });
   });
 
@@ -581,15 +622,62 @@ function renderAdmin() {
   html += '<div class="admin-section"><div class="admin-section-title">Team</div>';
   TEAM.forEach((name,i) => {
     html += `<div class="admin-row"><div class="admin-row-label">${name}</div>
-      <button class="btn-small red" onclick="teamEntfernen(${i})">Entfernen</button></div>`;
+      <button class="btn-small red" onclick="teamEntfernen(${i})">✕</button></div>`;
   });
   html += `<div class="add-form">
-    <input class="admin-input" id="neuer-name" placeholder="Name hinzufügen…" type="text">
+    <input class="admin-input" id="neuer-name" placeholder="Name hinzufügen…" type="text"
+      onkeydown="if(event.key==='Enter')teamHinzufuegen()">
     <button class="add-btn" onclick="teamHinzufuegen()">+</button>
   </div></div>`;
 
   document.getElementById('admin-content').innerHTML = html;
 }
+
+function bereichUmbenennen(key) {
+  const inp = document.getElementById(`bname-${key}`);
+  const val = inp.value.trim();
+  if(!val) return;
+  BEREICHE[key].name = val;
+  renderAdmin();
+  showToast(`✓ "${val}" gespeichert`);
+}
+
+function aufgabeVerschieben(key, fromTz, i) {
+  const sel = document.getElementById(`mv-${key}-${fromTz}-${i}`);
+  const toTz = sel.value;
+  if(!toTz) { showToast('Bitte Ziel wählen'); return; }
+  const aufgabe = BEREICHE[key].aufgaben[fromTz].splice(i, 1)[0];
+  BEREICHE[key].aufgaben[toTz].push(aufgabe);
+  renderAdmin();
+  showToast(`✓ Verschoben nach ${TAGESZEITEN.find(t=>t.key===toTz).label}`);
+}
+
+// Drag & Drop
+let dragSrc = null;
+function dragStart(e, key, tz, i) {
+  dragSrc = {key, tz, i};
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+  e.dataTransfer.dropEffect = 'move';
+}
+function dragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function dragDrop(e, key, tz, i) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if(!dragSrc || (dragSrc.key===key && dragSrc.tz===tz && dragSrc.i===i)) return;
+  if(dragSrc.key!==key || dragSrc.tz!==tz) { showToast('Nur innerhalb derselben Liste verschieben'); return; }
+  const arr = BEREICHE[key].aufgaben[tz];
+  const [moved] = arr.splice(dragSrc.i, 1);
+  arr.splice(i, 0, moved);
+  dragSrc = null;
+  renderAdmin();
+  showToast('✓ Reihenfolge geändert');
+}
+function dragEnd(e) { e.currentTarget.classList.remove('dragging'); }
 
 async function zuweisungAendern(key, person) {
   if(!person) return;
