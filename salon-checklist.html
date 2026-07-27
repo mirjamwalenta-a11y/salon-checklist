@@ -9,27 +9,96 @@
 <title>Salon Walenta – Verantwortung</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #F2F2F7; min-height: 100vh; max-width: 430px; margin: 0 auto; }
 
-  .topbar { background: #1C1C1E; padding: env(safe-area-inset-top, 12px) 20px 14px; position: sticky; top: 0; z-index: 50; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #F2F2F7;
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+  }
+
+  /* Top bar */
+  .topbar {
+    background: #1C1C1E;
+    padding: env(safe-area-inset-top, 12px) 20px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
   .topbar h1 { color: #fff; font-size: 20px; font-weight: 700; }
   .topbar .sub { color: #8E8E93; font-size: 13px; margin-top: 1px; }
 
+  /* Content */
   .content { padding: 16px; padding-bottom: 90px; }
-  .loading { text-align: center; padding: 60px 20px; color: #8E8E93; font-size: 15px; }
 
-  .date-banner { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: #8E8E93;
+    font-size: 15px;
+  }
+
+  /* Date banner */
+  .date-banner {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
   .date-banner .dt { font-size: 16px; font-weight: 600; color: #1C1C1E; }
   .date-banner .dsub { font-size: 12px; color: #8E8E93; margin-top: 2px; }
-  .check-badge { background: #1C1C1E; color: #fff; font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 20px; }
+  .check-badge {
+    background: #1C1C1E;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 11px;
+    border-radius: 20px;
+  }
 
-  .slabel { font-size: 11px; font-weight: 600; color: #8E8E93; text-transform: uppercase; letter-spacing: 0.8px; margin: 8px 0 8px 4px; }
+  /* Section label */
+  .slabel {
+    font-size: 11px;
+    font-weight: 600;
+    color: #8E8E93;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 8px 0 8px 4px;
+  }
 
-  .area-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: opacity 0.1s; }
+  /* Area card */
+  .area-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: opacity 0.1s;
+  }
   .area-card:active { opacity: 0.7; }
-  .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
   .area-name { font-size: 16px; font-weight: 600; color: #1C1C1E; flex: 1; }
-  .resp-pill { background: #F2F2F7; color: #3A3A3C; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; margin-left: 8px; white-space: nowrap; flex-shrink: 0; }
+  .resp-pill {
+    background: #F2F2F7;
+    color: #3A3A3C;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-left: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
   .prog-row { display: flex; align-items: center; gap: 10px; }
   .prog-bg { flex: 1; height: 6px; background: #E5E5EA; border-radius: 3px; overflow: hidden; }
   .prog-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
@@ -39,153 +108,332 @@
   .prog-text { font-size: 13px; color: #8E8E93; white-space: nowrap; }
   .arrow { color: #C7C7CC; font-size: 20px; }
 
-  .info-box { background: #fff; border-radius: 12px; padding: 14px 16px; font-size: 13px; color: #3A3A3C; line-height: 1.6; margin-top: 4px; }
+  /* Info box */
+  .info-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #3A3A3C;
+    line-height: 1.6;
+    margin-top: 4px;
+  }
 
-  /* DETAIL SCREEN */
-  .detail-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 100; flex-direction: column; max-width: 430px; margin: 0 auto; overflow-y: auto; }
+  /* === DETAIL SCREEN === */
+  .detail-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #F2F2F7;
+    z-index: 100;
+    flex-direction: column;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow-y: auto;
+  }
   .detail-screen.open { display: flex; }
 
-  .detail-topbar { background: #1C1C1E; padding: env(safe-area-inset-top, 12px) 20px 14px; position: sticky; top: 0; z-index: 10; flex-shrink: 0; }
-  .back-btn { color: #8E8E93; font-size: 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+  .detail-topbar {
+    background: #1C1C1E;
+    padding: env(safe-area-inset-top, 12px) 20px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+  .back-btn {
+    color: #8E8E93;
+    font-size: 15px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
   .back-btn:active { opacity: 0.6; }
   .detail-topbar h2 { color: #fff; font-size: 18px; font-weight: 700; }
-  .detail-resp { color: #8E8E93; font-size: 13px; margin-top: 3px; }
-  .detail-resp span { color: #fff; font-weight: 600; }
+  .detail-topbar .dsub { color: #8E8E93; font-size: 13px; margin-top: 2px; }
 
   .detail-content { padding: 16px; padding-bottom: 40px; flex: 1; }
 
-  .vortag-banner { background: #FFF3CD; border-left: 3px solid #FF9500; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #856404; font-weight: 500; }
+  .detail-header {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .resp-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+  .resp-label { font-size: 13px; color: #8E8E93; }
+  .resp-name { font-size: 13px; font-weight: 700; color: #1C1C1E; }
 
-  /* CHECKLIST – vereinfacht */
-  .checklist-card { background: #fff; border-radius: 12px; overflow: hidden; }
-  .check-item { display: flex; align-items: center; padding: 13px 16px; border-bottom: 1px solid #F2F2F7; cursor: pointer; transition: background 0.1s; min-height: 52px; }
+  /* Vortag banner */
+  .vortag-banner {
+    background: #FFF3CD;
+    border-left: 3px solid #FF9500;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #856404;
+    font-weight: 500;
+  }
+
+  /* Checklist */
+  .checklist-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-bottom: 1px solid #F2F2F7;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
   .check-item:last-child { border-bottom: none; }
   .check-item:active { background: #F9F9F9; }
   .check-item.vortag { background: #FFFBF0; }
+  .check-item.disabled { cursor: default; opacity: 0.85; }
 
-  .cb { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #D1D1D6; flex-shrink: 0; margin-right: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .cb {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid #D1D1D6;
+    flex-shrink: 0;
+    margin-right: 12px;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    position: relative;
+  }
   .cb.checked { background: #34C759; border-color: #34C759; }
-  .cb.checked::after { content: ''; width: 6px; height: 11px; border: 2.5px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
+  .cb.checked::after {
+    content: '';
+    width: 6px;
+    height: 11px;
+    border: 2.5px solid #fff;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+  }
 
   .item-body { flex: 1; }
-  .item-label { font-size: 15px; color: #1C1C1E; line-height: 1.3; }
-  .item-label.done { color: #C7C7CC; text-decoration: line-through; }
-  .item-meta { font-size: 11px; color: #8E8E93; margin-top: 2px; }
-  .vortag-dot { display: inline-block; width: 6px; height: 6px; background: #FF9500; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+  .item-label { font-size: 15px; color: #1C1C1E; line-height: 1.4; }
+  .item-label.done { color: #8E8E93; text-decoration: line-through; }
+  .item-meta { font-size: 12px; color: #8E8E93; margin-top: 3px; }
+  .vortag-tag { font-size: 11px; color: #FF9500; font-weight: 700; margin-right: 4px; }
 
-  /* MONTH SCREEN */
-  .month-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 100; flex-direction: column; max-width: 430px; margin: 0 auto; overflow-y: auto; }
+  /* === MONTH SCREEN === */
+  .month-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #F2F2F7;
+    z-index: 100;
+    flex-direction: column;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow-y: auto;
+  }
   .month-screen.open { display: flex; }
-  .month-header-card { background: #fff; border-radius: 12px; padding: 18px 16px; margin-bottom: 16px; text-align: center; }
+
+  .month-header-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px 16px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
   .month-label-sm { font-size: 12px; color: #8E8E93; margin-bottom: 4px; }
   .month-name { font-size: 24px; font-weight: 700; color: #1C1C1E; }
-  .month-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+
+  .month-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
   .mc-area { font-size: 15px; font-weight: 600; color: #1C1C1E; margin-bottom: 10px; }
   .mc-person-row { display: flex; align-items: center; gap: 12px; }
-  .mc-avatar { width: 38px; height: 38px; background: #1C1C1E; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 700; flex-shrink: 0; }
+  .mc-avatar {
+    width: 38px;
+    height: 38px;
+    background: #1C1C1E;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
   .mc-name { font-size: 16px; font-weight: 600; color: #1C1C1E; }
   .mc-role { font-size: 12px; color: #8E8E93; margin-top: 1px; }
-  .readonly-note { text-align: center; font-size: 12px; color: #C7C7CC; padding: 16px 0 8px; }
+  .readonly-note {
+    text-align: center;
+    font-size: 12px;
+    color: #C7C7CC;
+    padding: 16px 0 8px;
+  }
 
-  /* ADMIN SCREEN */
-  .admin-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 100; flex-direction: column; max-width: 430px; margin: 0 auto; overflow-y: auto; }
-  .admin-screen.open { display: flex; }
-  .admin-content { padding: 16px; padding-bottom: 40px; flex: 1; }
-
-  .admin-section { background: #fff; border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
-  .admin-section-title { font-size: 13px; font-weight: 700; color: #1C1C1E; padding: 14px 16px 8px; border-bottom: 1px solid #F2F2F7; }
-
-  .admin-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #F2F2F7; }
-  .admin-row:last-child { border-bottom: none; }
-  .admin-row-label { font-size: 15px; color: #1C1C1E; flex: 1; }
-  .admin-row-sub { font-size: 12px; color: #8E8E93; margin-top: 2px; }
-
-  .btn-small { background: #F2F2F7; border: none; border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: #1C1C1E; cursor: pointer; }
-  .btn-small:active { background: #E5E5EA; }
-  .btn-small.red { color: #FF3B30; }
-  .btn-small.green { background: #34C759; color: #fff; }
-
-  .admin-input { width: 100%; background: #F2F2F7; border: none; border-radius: 10px; padding: 12px 14px; font-size: 15px; color: #1C1C1E; margin-bottom: 8px; outline: none; }
-  .admin-input:focus { background: #E5E5EA; }
-
-  .add-form { padding: 12px 16px; }
-  .add-btn { width: 100%; background: #1C1C1E; color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; }
-  .add-btn:active { opacity: 0.8; }
-
-  .monat-select { background: #F2F2F7; border: none; border-radius: 8px; padding: 6px 10px; font-size: 14px; color: #1C1C1E; cursor: pointer; }
-
-  /* TAB BAR */
-  .tabbar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: #fff; border-top: 1px solid #E5E5EA; display: flex; padding: 8px 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); z-index: 50; }
-  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; }
-  .tab .ti { font-size: 22px; }
+  /* Tab bar */
+  .tabbar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    background: #fff;
+    border-top: 1px solid #E5E5EA;
+    display: flex;
+    padding: 8px 0;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    z-index: 50;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+  .tab .ti { font-size: 24px; }
   .tab .tl { font-size: 10px; color: #8E8E93; font-weight: 500; }
   .tab.active .tl { color: #1C1C1E; font-weight: 700; }
 
-  /* NAME MODAL */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: flex-end; justify-content: center; }
+  /* Name modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
   .modal-overlay.open { display: flex; }
-  .modal-sheet { background: #F2F2F7; border-radius: 20px 20px 0 0; padding: 12px 20px; padding-bottom: max(32px, env(safe-area-inset-bottom)); width: 100%; max-width: 430px; }
-  .modal-handle { width: 36px; height: 4px; background: #D1D1D6; border-radius: 2px; margin: 0 auto 16px; }
-  .modal-title { font-size: 17px; font-weight: 700; color: #1C1C1E; margin-bottom: 14px; }
-  .name-btn { display: block; width: 100%; background: #fff; border: none; border-radius: 12px; padding: 15px 16px; font-size: 16px; font-weight: 500; color: #1C1C1E; text-align: left; margin-bottom: 8px; cursor: pointer; }
+  .modal-sheet {
+    background: #F2F2F7;
+    border-radius: 20px 20px 0 0;
+    padding: 12px 20px;
+    padding-bottom: max(32px, env(safe-area-inset-bottom));
+    width: 100%;
+    max-width: 430px;
+  }
+  .modal-handle {
+    width: 36px;
+    height: 4px;
+    background: #D1D1D6;
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+  .modal-title { font-size: 17px; font-weight: 700; color: #1C1C1E; margin-bottom: 4px; }
+  .modal-sub { font-size: 13px; color: #8E8E93; margin-bottom: 14px; }
+  .name-btn {
+    display: block;
+    width: 100%;
+    background: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 15px 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1C1C1E;
+    text-align: left;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
   .name-btn:active { background: #E5E5EA; }
-  .cancel-btn { display: block; width: 100%; background: #fff; border: none; border-radius: 12px; padding: 15px 16px; font-size: 16px; color: #8E8E93; text-align: center; margin-top: 4px; cursor: pointer; }
+  .cancel-btn {
+    display: block;
+    width: 100%;
+    background: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 15px 16px;
+    font-size: 16px;
+    color: #8E8E93;
+    text-align: center;
+    margin-top: 4px;
+    cursor: pointer;
+  }
 
-  /* TOAST */
-  .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1C1C1E; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; z-index: 300; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1C1C1E;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 300;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+  }
   .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
 
-<!-- MAIN -->
+<!-- MAIN SCREEN -->
 <div class="topbar">
   <h1>Heute</h1>
   <div class="sub">Friseursalon Walenta</div>
 </div>
+
 <div class="content" id="main-content">
   <div class="loading">Wird geladen…</div>
 </div>
 
-<!-- DETAIL -->
+<!-- DETAIL SCREEN -->
 <div class="detail-screen" id="detail-screen">
   <div class="detail-topbar">
     <div class="back-btn" onclick="closeDetail()">‹ Zurück</div>
     <h2 id="detail-title"></h2>
-    <div class="detail-resp" id="detail-resp"></div>
+    <div class="dsub" id="detail-sub">Checkliste heute</div>
   </div>
   <div class="detail-content" id="detail-content">
     <div class="loading">Wird geladen…</div>
   </div>
 </div>
 
-<!-- MONTH -->
+<!-- MONTH SCREEN -->
 <div class="month-screen" id="month-screen">
   <div class="detail-topbar">
     <div class="back-btn" onclick="closeMonth()">‹ Zurück</div>
     <h2>Monat</h2>
-    <div class="detail-resp">Aktuelle Zuweisung</div>
+    <div class="dsub">Aktuelle Zuweisung</div>
   </div>
-  <div class="detail-content" id="month-content"></div>
-</div>
-
-<!-- ADMIN -->
-<div class="admin-screen" id="admin-screen">
-  <div class="detail-topbar">
-    <div class="back-btn" onclick="closeAdmin()">‹ Zurück</div>
-    <h2>Verwaltung</h2>
-    <div class="detail-resp">Nur für Mirjam</div>
-  </div>
-  <div class="admin-content" id="admin-content">
+  <div class="detail-content" id="month-content">
     <div class="loading">Wird geladen…</div>
   </div>
 </div>
 
-<!-- TABS -->
+<!-- TAB BAR -->
 <div class="tabbar">
-  <div class="tab active" id="tab-heute" onclick="showMain()"><div class="ti">☑️</div><div class="tl">Heute</div></div>
-  <div class="tab" id="tab-monat" onclick="showMonth()"><div class="ti">👤</div><div class="tl">Monat</div></div>
-  <div class="tab" id="tab-admin" onclick="showAdmin()"><div class="ti">⚙️</div><div class="tl">Verwaltung</div></div>
+  <div class="tab active" id="tab-heute" onclick="showMain()">
+    <div class="ti">☑️</div>
+    <div class="tl">Heute</div>
+  </div>
+  <div class="tab" id="tab-monat" onclick="showMonth()">
+    <div class="ti">👤</div>
+    <div class="tl">Monat</div>
+  </div>
 </div>
 
 <!-- NAME MODAL -->
@@ -193,19 +441,26 @@
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="modal-title">Wer hakt ab?</div>
-    <div id="name-list"></div>
+    <div class="modal-sub">Wähle deinen Namen</div>
+    <button class="name-btn" onclick="selectName('Mirjam')">Mirjam</button>
+    <button class="name-btn" onclick="selectName('Alina')">Alina</button>
+    <button class="name-btn" onclick="selectName('Mazen')">Mazen</button>
+    <button class="name-btn" onclick="selectName('Hassan')">Hassan</button>
+    <button class="name-btn" onclick="selectName('Ronya')">Ronya</button>
     <button class="cancel-btn" onclick="cancelModal()">Abbrechen</button>
   </div>
 </div>
 
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── CONFIG ───────────────────────────────────────────────────
 const SUPABASE_URL = 'https://wrxlaltgtgkdomklgrlj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyeGxhbHRndGdrZG9ta2xncmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyNDYwMzYsImV4cCI6MjA5OTgyMjAzNn0.Bw8ch-EJb_cLYTwxHdpjUJWgoCjje3Jc32pB0yiBS8g';
 
-// Standarddaten (werden durch Supabase überschrieben wenn vorhanden)
-let BEREICHE = {
+// ─── DATEN ────────────────────────────────────────────────────
+const BEREICHE = {
   sauberkeit: {
     name: 'Sauberkeit & Versorgung',
     aufgaben: [
@@ -227,33 +482,48 @@ let BEREICHE = {
   }
 };
 
-let TEAM = ['Mirjam','Alina','Mazen','Hassan','Ronya'];
+const TEAM = ['Mirjam', 'Alina', 'Mazen', 'Hassan', 'Ronya'];
 
+// ─── DATUM ────────────────────────────────────────────────────
 const HEUTE = new Date();
-const HEUTE_STR = fmtDate(HEUTE);
-const GESTERN = new Date(HEUTE); GESTERN.setDate(GESTERN.getDate()-1);
-const GESTERN_STR = fmtDate(GESTERN);
+const HEUTE_STR = formatDate(HEUTE);
+const GESTERN = new Date(HEUTE); GESTERN.setDate(GESTERN.getDate() - 1);
+const GESTERN_STR = formatDate(GESTERN);
 const MONAT_STR = `${HEUTE.getFullYear()}-${String(HEUTE.getMonth()+1).padStart(2,'0')}`;
+
+function formatDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 const WOCHENTAGE = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 const MONATE_DE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 const DATUM_ANZEIGE = `${WOCHENTAGE[HEUTE.getDay()]}, ${HEUTE.getDate()}. ${MONATE_DE[HEUTE.getMonth()]}`;
 const MONAT_ANZEIGE = `${MONATE_DE[HEUTE.getMonth()]} ${HEUTE.getFullYear()}`;
 
-function fmtDate(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-let checksHeute = {};
+// ─── STATE ────────────────────────────────────────────────────
+let checksHeute = {};    // { "sauberkeit-0": {person, uhrzeit}, ... }
 let checksGestern = {};
-let zuweisung = {};
+let zuweisung = {};      // { sauberkeit: "Alina", getraenke: "Mazen" }
 let pendingBereich = null;
 let pendingIndex = null;
+let currentDetailBereich = null;
 
-async function sbFetch(path, opts={}) {
+// ─── SUPABASE API ─────────────────────────────────────────────
+async function sbFetch(path, opts = {}) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': opts.prefer||'return=representation', ...opts.headers },
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer || 'return=representation',
+      ...opts.headers
+    },
     ...opts
   });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
   const text = await res.text();
   return text ? JSON.parse(text) : [];
 }
@@ -268,275 +538,272 @@ async function ladeAlles() {
     // Checks heute
     const ch = await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&select=bereich,aufgabe_index,person,uhrzeit`);
     checksHeute = {};
-    ch.forEach(c => { checksHeute[`${c.bereich}-${c.aufgabe_index}`] = {person:c.person,uhrzeit:c.uhrzeit}; });
+    ch.forEach(c => { checksHeute[`${c.bereich}-${c.aufgabe_index}`] = { person: c.person, uhrzeit: c.uhrzeit }; });
 
     // Checks gestern
     const cg = await sbFetch(`salon_checks?datum=eq.${GESTERN_STR}&select=bereich,aufgabe_index,erledigt`);
     checksGestern = {};
-    cg.forEach(c => { if(c.erledigt) checksGestern[`${c.bereich}-${c.aufgabe_index}`] = true; });
-
-    // Bereiche aus Supabase laden falls vorhanden
-    try {
-      const ba = await sbFetch('salon_bereiche?aktiv=eq.true&order=reihenfolge');
-      if(ba && ba.length > 0) {
-        const neuereBereiche = {};
-        for(const b of ba) {
-          const aufgaben = await sbFetch(`salon_aufgaben?bereich_id=eq.${b.id}&aktiv=eq.true&order=reihenfolge`);
-          neuereBereiche[b.key] = { name: b.name, aufgaben: aufgaben.map(a=>a.titel), id: b.id };
-        }
-        BEREICHE = neuereBereiche;
-      }
-    } catch(e) { /* Tabellen noch nicht vorhanden – Standarddaten verwenden */ }
-
-    // Team aus Supabase laden falls vorhanden
-    try {
-      const tm = await sbFetch('salon_team?aktiv=eq.true&order=name');
-      if(tm && tm.length > 0) TEAM = tm.map(t=>t.name);
-    } catch(e) { /* Standardteam verwenden */ }
+    cg.forEach(c => {
+      if (c.erledigt) checksGestern[`${c.bereich}-${c.aufgabe_index}`] = true;
+    });
 
     renderMain();
   } catch(e) {
-    document.getElementById('main-content').innerHTML = `<div class="loading">⚠️ Verbindung fehlgeschlagen.<br><small>${e.message}</small></div>`;
+    document.getElementById('main-content').innerHTML =
+      `<div class="loading">⚠️ Verbindung fehlgeschlagen.<br><small>${e.message}</small></div>`;
   }
 }
 
-// ── MAIN ──────────────────────────────────────────────────────
+// ─── RENDER MAIN ──────────────────────────────────────────────
 function renderMain() {
-  const badge = HEUTE.getHours() < 13 ? 'Morgencheck' : 'Abendcheck';
+  const checkBadge = istFruehdienst() ? 'Morgencheck' : 'Abendcheck';
+
   let html = `
     <div class="date-banner">
-      <div><div class="dt">${DATUM_ANZEIGE}</div><div class="dsub">Tagesübersicht</div></div>
-      <div class="check-badge">${badge}</div>
+      <div>
+        <div class="dt">${DATUM_ANZEIGE}</div>
+        <div class="dsub">Tagesübersicht</div>
+      </div>
+      <div class="check-badge">${checkBadge}</div>
     </div>
     <div class="slabel">Verantwortungsbereiche</div>
   `;
-  Object.entries(BEREICHE).forEach(([key,b]) => {
-    const total = b.aufgaben.length;
-    const done = b.aufgaben.filter((_,i)=>checksHeute[`${key}-${i}`]).length;
-    const pct = Math.round((done/total)*100);
-    const fc = pct===100?'done':pct>0?'partial':'empty';
-    const person = zuweisung[key]||'–';
+
+  Object.entries(BEREICHE).forEach(([key, bereich]) => {
+    const total = bereich.aufgaben.length;
+    const done = bereich.aufgaben.filter((_, i) => checksHeute[`${key}-${i}`]).length;
+    const pct = Math.round((done / total) * 100);
+    const fillClass = pct === 100 ? 'done' : pct > 0 ? 'partial' : 'empty';
+    const person = zuweisung[key] || '–';
+
     html += `
       <div class="area-card" onclick="openDetail('${key}')">
-        <div class="card-top"><div class="area-name">${b.name}</div><div class="resp-pill">${person}</div></div>
+        <div class="card-top">
+          <div class="area-name">${bereich.name}</div>
+          <div class="resp-pill">${person}</div>
+        </div>
         <div class="prog-row">
-          <div class="prog-bg"><div class="prog-fill ${fc}" style="width:${pct}%"></div></div>
+          <div class="prog-bg"><div class="prog-fill ${fillClass}" style="width:${pct}%"></div></div>
           <div class="prog-text">${done} von ${total}</div>
           <div class="arrow">›</div>
         </div>
-      </div>`;
+      </div>
+    `;
   });
-  html += `<div class="slabel" style="margin-top:4px;">Hinweis</div>
-    <div class="info-box">Morgencheck: erste anwesende Person.<br>Abendcheck: letzte Person vor Salonschluss.</div>`;
+
+  html += `
+    <div class="slabel" style="margin-top:4px;">Hinweis</div>
+    <div class="info-box">
+      Morgencheck: erste anwesende Person prüft alle Bereiche.<br>
+      Abendcheck: letzte Person vor Salonschluss.
+    </div>
+  `;
+
   document.getElementById('main-content').innerHTML = html;
 }
 
-// ── DETAIL – vereinfacht ───────────────────────────────────────
-function openDetail(key) {
-  const b = BEREICHE[key];
-  const person = zuweisung[key]||'–';
-  document.getElementById('detail-title').textContent = b.name;
-  document.getElementById('detail-resp').innerHTML = `Verantwortlich: <span>${person}</span>`;
-  document.getElementById('detail-screen').classList.add('open');
-  renderDetail(key);
+function istFruehdienst() {
+  return HEUTE.getHours() < 13;
 }
 
-function renderDetail(key) {
-  const b = BEREICHE[key];
-  const hatGestern = b.aufgaben.some((_,i)=>checksGestern[`${key}-${i}`]);
-  const vortagOffen = hatGestern ? b.aufgaben.filter((_,i)=>!checksGestern[`${key}-${i}`]&&!checksHeute[`${key}-${i}`]).length : 0;
+// ─── DETAIL ───────────────────────────────────────────────────
+function openDetail(bereichKey) {
+  currentDetailBereich = bereichKey;
+  const bereich = BEREICHE[bereichKey];
+  const person = zuweisung[bereichKey] || '–';
 
-  let banner = vortagOffen > 0
-    ? `<div class="vortag-banner">⚠ ${vortagOffen} Punkt${vortagOffen>1?'e':''} von gestern noch offen</div>` : '';
+  document.getElementById('detail-title').textContent = bereich.name;
+  document.getElementById('detail-screen').classList.add('open');
+
+  renderDetail(bereichKey);
+}
+
+function renderDetail(bereichKey) {
+  const bereich = BEREICHE[bereichKey];
+  const person = zuweisung[bereichKey] || '–';
+
+  // Offene Punkte von gestern zählen
+  let vortag = 0;
+  bereich.aufgaben.forEach((_, i) => {
+    const key = `${bereichKey}-${i}`;
+    if (!checksGestern[key] && !checksHeute[key]) vortag++;
+  });
+  // Nur anzeigen wenn gestern überhaupt Checks gab
+  const hatGesternDaten = bereich.aufgaben.some((_, i) => checksGestern[`${bereichKey}-${i}`]);
+  const vortagBanner = (hatGesternDaten && vortag > 0)
+    ? `<div class="vortag-banner">⚠ ${vortag} Punkt${vortag > 1 ? 'e' : ''} von gestern offen geblieben</div>`
+    : '';
 
   let items = '';
-  b.aufgaben.forEach((aufgabe,i) => {
-    const k = `${key}-${i}`;
-    const check = checksHeute[k];
+  bereich.aufgaben.forEach((aufgabe, i) => {
+    const key = `${bereichKey}-${i}`;
+    const check = checksHeute[key];
     const done = !!check;
-    const vortag = hatGestern && !checksGestern[k] && !done;
+    const warGesternOffen = hatGesternDaten && !checksGestern[key] && !done;
+
+    const cbClass = done ? 'cb checked' : 'cb';
+    const lblClass = done ? 'item-label done' : 'item-label';
+    const rowClass = warGesternOffen ? 'check-item vortag' : 'check-item';
+    const meta = done ? `${check.person} · ${check.uhrzeit}` : 'Noch nicht erledigt';
+    const vtTag = warGesternOffen ? '<span class="vortag-tag">GESTERN OFFEN</span>' : '';
+
     items += `
-      <div class="check-item${vortag?' vortag':''}" onclick="toggleItem('${key}',${i})">
-        <div class="cb${done?' checked':''}"></div>
+      <div class="${rowClass}" onclick="toggleItem('${bereichKey}', ${i})">
+        <div class="${cbClass}" id="cb-${bereichKey}-${i}"></div>
         <div class="item-body">
-          <div class="item-label${done?' done':''}">${vortag?'<span class="vortag-dot"></span>':''}${aufgabe}</div>
-          ${done?`<div class="item-meta">${check.person} · ${check.uhrzeit}</div>`:''}
+          <div class="${lblClass}" id="lbl-${bereichKey}-${i}">${vtTag}${aufgabe}</div>
+          <div class="item-meta" id="meta-${bereichKey}-${i}">${meta}</div>
         </div>
-      </div>`;
+      </div>
+    `;
   });
 
   document.getElementById('detail-content').innerHTML = `
-    ${banner}
-    <div class="slabel">Checkliste heute</div>
-    <div class="checklist-card">${items}</div>`;
+    <div class="detail-header">
+      <div style="font-size:17px;font-weight:700;color:#1C1C1E;">${bereich.name}</div>
+      <div class="resp-row">
+        <div class="resp-label">Verantwortlich ${MONATE_DE[HEUTE.getMonth()]}:</div>
+        <div class="resp-name">${person}</div>
+      </div>
+    </div>
+    ${vortagBanner}
+    <div class="slabel">Checkliste – heute</div>
+    <div class="checklist-card">${items}</div>
+  `;
 }
 
 function closeDetail() {
   document.getElementById('detail-screen').classList.remove('open');
+  currentDetailBereich = null;
   renderMain();
 }
 
-// ── TOGGLE ────────────────────────────────────────────────────
+// ─── TOGGLE ───────────────────────────────────────────────────
 function toggleItem(bereich, index) {
-  const k = `${bereich}-${index}`;
-  if(checksHeute[k]) { uncheckeItem(bereich,index); return; }
+  const key = `${bereich}-${index}`;
+  if (checksHeute[key]) {
+    // Rückgängig machen
+    uncheckeItem(bereich, index);
+    return;
+  }
   pendingBereich = bereich;
   pendingIndex = index;
-  document.getElementById('name-list').innerHTML = TEAM.map(n=>`<button class="name-btn" onclick="selectName('${n}')">${n}</button>`).join('');
   document.getElementById('modal').classList.add('open');
 }
 
 async function selectName(name) {
   document.getElementById('modal').classList.remove('open');
-  const bereich = pendingBereich, index = pendingIndex;
-  const k = `${bereich}-${index}`;
+  const bereich = pendingBereich;
+  const index = pendingIndex;
+  const key = `${bereich}-${index}`;
+
   const now = new Date();
   const uhrzeit = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  checksHeute[k] = {person:name,uhrzeit};
+
+  // Optimistisch updaten
+  checksHeute[key] = { person: name, uhrzeit };
   renderDetail(bereich);
+
   try {
-    await sbFetch('salon_checks',{method:'POST',prefer:'resolution=merge-duplicates',body:JSON.stringify({datum:HEUTE_STR,bereich,aufgabe_index:index,person:name,uhrzeit,erledigt:true})});
-    showToast(`✓ ${name}`);
-  } catch(e) { delete checksHeute[k]; renderDetail(bereich); showToast('⚠ Fehler'); }
+    await sbFetch('salon_checks', {
+      method: 'POST',
+      prefer: 'resolution=merge-duplicates',
+      body: JSON.stringify({
+        datum: HEUTE_STR,
+        bereich,
+        aufgabe_index: index,
+        person: name,
+        uhrzeit,
+        erledigt: true
+      })
+    });
+    showToast(`✓ ${name} hat abgehakt`);
+  } catch(e) {
+    // Rollback
+    delete checksHeute[key];
+    renderDetail(bereich);
+    showToast('⚠ Fehler beim Speichern');
+  }
 }
 
-async function uncheckeItem(bereich,index) {
-  const k = `${bereich}-${index}`, prev = checksHeute[k];
-  delete checksHeute[k]; renderDetail(bereich);
-  try { await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&bereich=eq.${bereich}&aufgabe_index=eq.${index}`,{method:'DELETE',prefer:''}); }
-  catch(e) { checksHeute[k]=prev; renderDetail(bereich); }
+async function uncheckeItem(bereich, index) {
+  const key = `${bereich}-${index}`;
+  const prev = checksHeute[key];
+  delete checksHeute[key];
+  renderDetail(bereich);
+
+  try {
+    await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&bereich=eq.${bereich}&aufgabe_index=eq.${index}`, {
+      method: 'DELETE',
+      prefer: ''
+    });
+  } catch(e) {
+    checksHeute[key] = prev;
+    renderDetail(bereich);
+    showToast('⚠ Fehler beim Entfernen');
+  }
 }
 
-function cancelModal() { document.getElementById('modal').classList.remove('open'); }
+function cancelModal() {
+  document.getElementById('modal').classList.remove('open');
+}
 
-// ── MONTH ─────────────────────────────────────────────────────
-function showMonth() {
-  setTab('monat');
+// ─── MONTH ────────────────────────────────────────────────────
+async function showMonth() {
+  document.getElementById('tab-heute').classList.remove('active');
+  document.getElementById('tab-monat').classList.add('active');
   document.getElementById('month-screen').classList.add('open');
-  let html = `<div class="month-header-card"><div class="month-label-sm">Aktuelle Zuweisung</div><div class="month-name">${MONAT_ANZEIGE}</div></div><div class="slabel">Verantwortliche Personen</div>`;
-  Object.entries(BEREICHE).forEach(([key,b]) => {
-    const person = zuweisung[key]||'–';
-    html += `<div class="month-card"><div class="mc-area">${b.name}</div><div class="mc-person-row"><div class="mc-avatar">${person.charAt(0)}</div><div><div class="mc-name">${person}</div><div class="mc-role">Hauptverantwortlich ${MONATE_DE[HEUTE.getMonth()]}</div></div></div></div>`;
+
+  let html = `
+    <div class="month-header-card">
+      <div class="month-label-sm">Aktuelle Zuweisung</div>
+      <div class="month-name">${MONAT_ANZEIGE}</div>
+    </div>
+    <div class="slabel">Verantwortliche Personen</div>
+  `;
+
+  Object.entries(BEREICHE).forEach(([key, bereich]) => {
+    const person = zuweisung[key] || '–';
+    const initial = person.charAt(0);
+    html += `
+      <div class="month-card">
+        <div class="mc-area">${bereich.name}</div>
+        <div class="mc-person-row">
+          <div class="mc-avatar">${initial}</div>
+          <div>
+            <div class="mc-name">${person}</div>
+            <div class="mc-role">Hauptverantwortlich ${MONATE_DE[HEUTE.getMonth()]}</div>
+          </div>
+        </div>
+      </div>
+    `;
   });
-  html += `<div class="readonly-note">Änderungen unter Verwaltung</div>`;
+
+  html += `<div class="readonly-note">Nur lesend – Änderungen werden von Mirjam eingetragen</div>`;
   document.getElementById('month-content').innerHTML = html;
 }
-function closeMonth() { document.getElementById('month-screen').classList.remove('open'); setTab('heute'); }
 
-// ── ADMIN ─────────────────────────────────────────────────────
-function showAdmin() {
-  setTab('admin');
-  document.getElementById('admin-screen').classList.add('open');
-  renderAdmin();
-}
-function closeAdmin() { document.getElementById('admin-screen').classList.remove('open'); setTab('heute'); }
-
-function renderAdmin() {
-  let html = '';
-
-  // Monatszuweisung
-  html += `<div class="admin-section"><div class="admin-section-title">Monatszuweisung – ${MONAT_ANZEIGE}</div>`;
-  Object.entries(BEREICHE).forEach(([key,b]) => {
-    const person = zuweisung[key]||'–';
-    html += `<div class="admin-row">
-      <div><div class="admin-row-label">${b.name}</div><div class="admin-row-sub">Verantwortlich: ${person}</div></div>
-      <select class="monat-select" onchange="zuweisungAendern('${key}',this.value)">
-        ${TEAM.map(n=>`<option value="${n}"${n===person?' selected':''}>${n}</option>`).join('')}
-      </select>
-    </div>`;
-  });
-  html += `</div>`;
-
-  // Aufgaben verwalten
-  Object.entries(BEREICHE).forEach(([key,b]) => {
-    html += `<div class="admin-section"><div class="admin-section-title">Aufgaben – ${b.name}</div>`;
-    b.aufgaben.forEach((aufgabe,i) => {
-      html += `<div class="admin-row">
-        <div class="admin-row-label">${aufgabe}</div>
-        <button class="btn-small red" onclick="aufgabeLoeschen('${key}',${i})">Löschen</button>
-      </div>`;
-    });
-    html += `<div class="add-form">
-      <input class="admin-input" id="neue-aufgabe-${key}" placeholder="Neue Aufgabe hinzufügen…" type="text">
-      <button class="add-btn" onclick="aufgabeHinzufuegen('${key}')">+ Hinzufügen</button>
-    </div></div>`;
-  });
-
-  // Team verwalten
-  html += `<div class="admin-section"><div class="admin-section-title">Team</div>`;
-  TEAM.forEach((name,i) => {
-    html += `<div class="admin-row">
-      <div class="admin-row-label">${name}</div>
-      <button class="btn-small red" onclick="teamMitgliedEntfernen(${i})">Entfernen</button>
-    </div>`;
-  });
-  html += `<div class="add-form">
-    <input class="admin-input" id="neuer-name" placeholder="Name hinzufügen…" type="text">
-    <button class="add-btn" onclick="teamMitgliedHinzufuegen()">+ Hinzufügen</button>
-  </div></div>`;
-
-  document.getElementById('admin-content').innerHTML = html;
-}
-
-async function zuweisungAendern(key, person) {
-  zuweisung[key] = person;
-  try {
-    // Bestehenden Eintrag löschen und neu anlegen
-    await sbFetch(`salon_monatszuweisung?monat=eq.${MONAT_STR}&bereich=eq.${key}`,{method:'DELETE',prefer:''});
-    await sbFetch('salon_monatszuweisung',{method:'POST',body:JSON.stringify({monat:MONAT_STR,bereich:key,person})});
-    showToast(`✓ ${person} ist jetzt verantwortlich`);
-  } catch(e) { showToast('⚠ Fehler beim Speichern'); }
-}
-
-function aufgabeHinzufuegen(key) {
-  const input = document.getElementById(`neue-aufgabe-${key}`);
-  const titel = input.value.trim();
-  if(!titel) return;
-  BEREICHE[key].aufgaben.push(titel);
-  input.value = '';
-  renderAdmin();
-  showToast('✓ Aufgabe hinzugefügt');
-}
-
-function aufgabeLoeschen(key, index) {
-  BEREICHE[key].aufgaben.splice(index,1);
-  renderAdmin();
-  showToast('Aufgabe entfernt');
-}
-
-function teamMitgliedHinzufuegen() {
-  const input = document.getElementById('neuer-name');
-  const name = input.value.trim();
-  if(!name) return;
-  TEAM.push(name);
-  input.value = '';
-  renderAdmin();
-  showToast(`✓ ${name} hinzugefügt`);
-}
-
-function teamMitgliedEntfernen(index) {
-  const name = TEAM[index];
-  TEAM.splice(index,1);
-  renderAdmin();
-  showToast(`${name} entfernt`);
-}
-
-// ── HELPERS ───────────────────────────────────────────────────
-function setTab(name) {
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-}
-function showMain() {
-  setTab('heute');
+function closeMonth() {
   document.getElementById('month-screen').classList.remove('open');
-  document.getElementById('admin-screen').classList.remove('open');
+  document.getElementById('tab-monat').classList.remove('active');
+  document.getElementById('tab-heute').classList.add('active');
 }
+
+function showMain() {
+  document.getElementById('tab-monat').classList.remove('active');
+  document.getElementById('tab-heute').classList.add('active');
+  document.getElementById('month-screen').classList.remove('open');
+}
+
+// ─── TOAST ────────────────────────────────────────────────────
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+// ─── START ────────────────────────────────────────────────────
 ladeAlles();
 </script>
 </body>
