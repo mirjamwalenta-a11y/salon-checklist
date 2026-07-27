@@ -830,6 +830,72 @@ function showToast(msg) {
 
 // ─── START ────────────────────────────────────────────────────
 ladeAlles();
+
+// ─── ADMIN ────────────────────────────────────────────────────
+function toggleAdmin() {
+  const s = document.getElementById('admin-screen');
+  s.classList.toggle('open');
+  if(s.classList.contains('open')) renderAdmin();
+}
+
+function renderAdmin() {
+  let html = '';
+  // Zuweisungen
+  html += '<div class="admin-section"><div class="admin-section-title">Monatliche Zuweisungen</div>';
+  Object.entries(BEREICHE).forEach(([key,b]) => {
+    const curr = zuweisung[key] || '';
+    html += `<div class="admin-row"><div class="admin-row-label">${b.name}</div>
+      <select class="admin-select" onchange="zuweisungAendern('${key}',this.value)">
+        <option value="">–</option>
+        ${TEAM.map(n=>`<option value="${n}" ${curr===n?'selected':''}>${n}</option>`).join('')}
+      </select></div>`;
+  });
+  html += '</div>';
+  // Aufgaben
+  Object.entries(BEREICHE).forEach(([key,b]) => {
+    html += `<div class="admin-section"><div class="admin-section-title">Aufgaben – ${b.name}</div>`;
+    b.aufgaben.forEach((a,i) => {
+      html += `<div class="admin-row"><div class="admin-row-label">${a}</div>
+        <button class="btn-small red" onclick="aufgabeLoeschen('${key}',${i})">Löschen</button></div>`;
+    });
+    html += `<div class="add-form">
+      <input class="admin-input" id="neue-aufgabe-${key}" placeholder="Neue Aufgabe…" type="text">
+      <button class="add-btn" onclick="aufgabeHinzufuegen('${key}')">+ Hinzufügen</button>
+    </div></div>`;
+  });
+  // Team
+  html += '<div class="admin-section"><div class="admin-section-title">Team</div>';
+  TEAM.forEach((name,i) => {
+    html += `<div class="admin-row"><div class="admin-row-label">${name}</div>
+      <button class="btn-small red" onclick="teamEntfernen(${i})">Entfernen</button></div>`;
+  });
+  html += `<div class="add-form">
+    <input class="admin-input" id="neuer-name" placeholder="Name hinzufügen…" type="text">
+    <button class="add-btn" onclick="teamHinzufuegen()">+ Hinzufügen</button>
+  </div></div>`;
+  document.getElementById('admin-content').innerHTML = html;
+}
+
+function aufgabeHinzufuegen(key) {
+  const inp = document.getElementById('neue-aufgabe-'+key);
+  const t = inp.value.trim(); if(!t) return;
+  BEREICHE[key].aufgaben.push(t); inp.value = '';
+  renderAdmin(); showToast('✓ Aufgabe hinzugefügt');
+}
+function aufgabeLoeschen(key,i) {
+  BEREICHE[key].aufgaben.splice(i,1);
+  renderAdmin(); showToast('Aufgabe entfernt');
+}
+function teamHinzufuegen() {
+  const inp = document.getElementById('neuer-name');
+  const n = inp.value.trim(); if(!n) return;
+  TEAM.push(n); inp.value = '';
+  renderAdmin(); showToast('✓ '+n+' hinzugefügt');
+}
+function teamEntfernen(i) {
+  TEAM.splice(i,1);
+  renderAdmin(); showToast('Entfernt');
+}
 </script>
 </body>
 </html>
