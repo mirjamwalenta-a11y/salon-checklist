@@ -8,693 +8,481 @@
 <meta name="apple-mobile-web-app-title" content="Salon Walenta">
 <title>Salon Walenta – Verantwortung</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #F2F2F7; min-height: 100vh; max-width: 430px; margin: 0 auto; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #F2F2F7;
-    min-height: 100vh;
-    max-width: 100%;
-  }
+.topbar { background: #1C1C1E; padding: env(safe-area-inset-top, 12px) 20px 14px; position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; }
+.topbar-left h1 { color: #fff; font-size: 20px; font-weight: 700; }
+.topbar-left .sub { color: #8E8E93; font-size: 13px; margin-top: 1px; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+#sync-dot { width: 10px; height: 10px; border-radius: 50%; background: #FF9500; transition: background 0.5s; flex-shrink: 0; }
+.admin-btn { background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 20px; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-  /* Top bar */
-  .topbar {
-    background: #1C1C1E;
-    padding: env(safe-area-inset-top, 12px) 20px 14px;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-  }
-  .topbar { display: flex; align-items: center; justify-content: space-between; }
-  .topbar-left h1 { color: #fff; font-size: 20px; font-weight: 700; }
-  .topbar-left .sub { color: #8E8E93; font-size: 13px; margin-top: 1px; }
-  .admin-btn { background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 20px; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  /* Admin screen */
-  .admin-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 150; flex-direction: column; overflow-y: auto; }
-  .admin-screen.open { display: flex; }
-  .admin-section { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
-  .admin-section-title { font-size: 13px; font-weight: 700; color: #8E8E93; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-  .admin-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #F2F2F7; }
-  .admin-row-label { font-size: 15px; color: #1C1C1E; flex: 1; }
-  .btn-small { border: none; border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
-  .btn-small.red { background: #FFE5E5; color: #C0392B; }
-  .add-form { display: flex; gap: 8px; margin-top: 10px; }
-  .admin-input { flex: 1; border: 1px solid #E5E5EA; border-radius: 8px; padding: 8px 12px; font-size: 15px; }
-  .add-btn { background: #1C1C1E; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .admin-select { border: 1px solid #E5E5EA; border-radius: 8px; padding: 8px; font-size: 14px; }
+.content { padding: 16px; padding-bottom: 90px; }
+.loading { text-align: center; padding: 60px 20px; color: #8E8E93; font-size: 15px; }
 
-  /* Content */
-  .content { padding: 16px; padding-bottom: 90px; }
+.date-banner { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+.date-banner .dt { font-size: 16px; font-weight: 600; color: #1C1C1E; }
+.date-banner .dsub { font-size: 12px; color: #8E8E93; margin-top: 2px; }
+.check-badge { background: #1C1C1E; color: #fff; font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 20px; }
 
-  /* Loading */
-  .loading {
-    text-align: center;
-    padding: 60px 20px;
-    color: #8E8E93;
-    font-size: 15px;
-  }
+.slabel { font-size: 11px; font-weight: 600; color: #8E8E93; text-transform: uppercase; letter-spacing: 0.8px; margin: 8px 0 8px 4px; }
 
-  /* Date banner */
-  .date-banner {
-    background: #fff;
-    border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .date-banner .dt { font-size: 16px; font-weight: 600; color: #1C1C1E; }
-  .date-banner .dsub { font-size: 12px; color: #8E8E93; margin-top: 2px; }
-  .check-badge {
-    background: #1C1C1E;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 5px 11px;
-    border-radius: 20px;
-  }
+.area-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: opacity 0.1s; }
+.area-card:active { opacity: 0.7; }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.area-name { font-size: 16px; font-weight: 600; color: #1C1C1E; flex: 1; }
+.resp-pill { background: #F2F2F7; color: #3A3A3C; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; margin-left: 8px; white-space: nowrap; flex-shrink: 0; }
+.prog-row { display: flex; align-items: center; gap: 10px; }
+.prog-bg { flex: 1; height: 6px; background: #E5E5EA; border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+.prog-fill.done { background: #34C759; }
+.prog-fill.partial { background: #FF9500; }
+.prog-fill.empty { background: #E5E5EA; }
+.prog-text { font-size: 13px; color: #8E8E93; white-space: nowrap; }
+.arrow { color: #C7C7CC; font-size: 20px; }
 
-  /* Section label */
-  .slabel {
-    font-size: 11px;
-    font-weight: 600;
-    color: #8E8E93;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin: 8px 0 8px 4px;
-  }
+.info-box { background: #fff; border-radius: 12px; padding: 14px 16px; font-size: 13px; color: #3A3A3C; line-height: 1.6; margin-top: 4px; }
 
-  /* Area card */
-  .area-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    transition: opacity 0.1s;
-  }
-  .area-card:active { opacity: 0.7; }
-  .card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
-  }
-  .area-name { font-size: 16px; font-weight: 600; color: #1C1C1E; flex: 1; }
-  .resp-pill {
-    background: #F2F2F7;
-    color: #3A3A3C;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 20px;
-    margin-left: 8px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .prog-row { display: flex; align-items: center; gap: 10px; }
-  .prog-bg { flex: 1; height: 6px; background: #E5E5EA; border-radius: 3px; overflow: hidden; }
-  .prog-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
-  .prog-fill.done { background: #34C759; }
-  .prog-fill.partial { background: #FF9500; }
-  .prog-fill.empty { background: #E5E5EA; }
-  .prog-text { font-size: 13px; color: #8E8E93; white-space: nowrap; }
-  .arrow { color: #C7C7CC; font-size: 20px; }
+/* DETAIL */
+.detail-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 100; flex-direction: column; max-width: 430px; margin: 0 auto; }
+.detail-screen.open { display: flex; }
+.detail-topbar { background: #1C1C1E; padding: env(safe-area-inset-top, 12px) 20px 14px; flex-shrink: 0; }
+.back-btn { color: #8E8E93; font-size: 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+.back-btn:active { opacity: 0.6; }
+.detail-topbar h2 { color: #fff; font-size: 18px; font-weight: 700; }
+.detail-resp { color: #8E8E93; font-size: 13px; margin-top: 3px; }
+.detail-resp span { color: #fff; font-weight: 600; }
 
-  /* Info box */
-  .info-box {
-    background: #fff;
-    border-radius: 12px;
-    padding: 14px 16px;
-    font-size: 13px;
-    color: #3A3A3C;
-    line-height: 1.6;
-    margin-top: 4px;
-  }
+/* Tageszeit Tabs */
+.tageszeit-tabs { display: flex; gap: 6px; padding: 12px 16px 0; background: #F2F2F7; flex-shrink: 0; overflow-x: auto; }
+.tz-tab { flex-shrink: 0; padding: 7px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; background: #E5E5EA; color: #3A3A3C; border: none; transition: all 0.15s; }
+.tz-tab.active { background: #1C1C1E; color: #fff; }
+.tz-tab .tz-count { font-size: 11px; opacity: 0.7; margin-left: 4px; }
 
-  /* === DETAIL SCREEN === */
-  .detail-screen {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: #F2F2F7;
-    z-index: 100;
-    flex-direction: column;
-    max-width: 100%;
-    overflow-y: auto;
-  }
-  .detail-screen.open { display: flex; }
+.detail-content { padding: 12px 16px; flex: 1; overflow-y: auto; padding-bottom: 40px; }
 
-  .detail-topbar {
-    background: #1C1C1E;
-    padding: env(safe-area-inset-top, 12px) 20px 14px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    flex-shrink: 0;
-  }
-  .back-btn {
-    color: #8E8E93;
-    font-size: 15px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin-bottom: 6px;
-  }
-  .back-btn:active { opacity: 0.6; }
-  .detail-topbar h2 { color: #fff; font-size: 18px; font-weight: 700; }
-  .detail-topbar .dsub { color: #8E8E93; font-size: 13px; margin-top: 2px; }
+/* Checkliste vereinfacht */
+.checklist-card { background: #fff; border-radius: 12px; overflow: hidden; }
+.check-item { display: flex; align-items: center; padding: 13px 16px; border-bottom: 1px solid #F2F2F7; cursor: pointer; transition: background 0.1s; min-height: 52px; }
+.check-item:last-child { border-bottom: none; }
+.check-item:active { background: #F9F9F9; }
+.check-item.vortag { background: #FFFBF0; }
 
-  .detail-content { padding: 16px; padding-bottom: 40px; flex: 1; }
+.cb { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #D1D1D6; flex-shrink: 0; margin-right: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.cb.checked { background: #34C759; border-color: #34C759; }
+.cb.checked::after { content: ''; width: 6px; height: 11px; border: 2.5px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
 
-  .detail-header {
-    background: #fff;
-    border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 12px;
-  }
-  .resp-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
-  .resp-label { font-size: 13px; color: #8E8E93; }
-  .resp-name { font-size: 13px; font-weight: 700; color: #1C1C1E; }
+.item-body { flex: 1; }
+.item-label { font-size: 15px; color: #1C1C1E; line-height: 1.3; }
+.item-label.done { color: #C7C7CC; text-decoration: line-through; }
+.item-meta { font-size: 11px; color: #8E8E93; margin-top: 2px; }
+.vortag-dot { display: inline-block; width: 6px; height: 6px; background: #FF9500; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+.vortag-banner { background: #FFF3CD; border-left: 3px solid #FF9500; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #856404; font-weight: 500; }
+.empty-state { text-align: center; padding: 40px 20px; color: #8E8E93; font-size: 14px; }
 
-  /* Vortag banner */
-  .vortag-banner {
-    background: #FFF3CD;
-    border-left: 3px solid #FF9500;
-    border-radius: 8px;
-    padding: 10px 14px;
-    margin-bottom: 12px;
-    font-size: 13px;
-    color: #856404;
-    font-weight: 500;
-  }
+/* MONTH */
+.month-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 100; flex-direction: column; max-width: 430px; margin: 0 auto; overflow-y: auto; }
+.month-screen.open { display: flex; }
+.month-header-card { background: #fff; border-radius: 12px; padding: 18px 16px; margin-bottom: 16px; text-align: center; }
+.month-label-sm { font-size: 12px; color: #8E8E93; margin-bottom: 4px; }
+.month-name { font-size: 24px; font-weight: 700; color: #1C1C1E; }
+.month-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.mc-area { font-size: 15px; font-weight: 600; color: #1C1C1E; margin-bottom: 10px; }
+.mc-person-row { display: flex; align-items: center; gap: 12px; }
+.mc-avatar { width: 38px; height: 38px; background: #1C1C1E; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 700; flex-shrink: 0; }
+.mc-name { font-size: 16px; font-weight: 600; color: #1C1C1E; }
+.mc-role { font-size: 12px; color: #8E8E93; margin-top: 1px; }
 
-  /* Checklist */
-  .checklist-card {
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
-  .check-item {
-    display: flex;
-    align-items: flex-start;
-    padding: 14px 16px;
-    border-bottom: 1px solid #F2F2F7;
-    cursor: pointer;
-    transition: background 0.1s;
-  }
-  .check-item:last-child { border-bottom: none; }
-  .check-item:active { background: #F9F9F9; }
-  .check-item.vortag { background: #FFFBF0; }
-  .check-item.disabled { cursor: default; opacity: 0.85; }
+/* ADMIN */
+.admin-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 150; flex-direction: column; max-width: 430px; margin: 0 auto; overflow-y: auto; }
+.admin-screen.open { display: flex; }
+.admin-topbar { background: #1C1C1E; padding: env(safe-area-inset-top, 12px) 20px 14px; flex-shrink: 0; }
+.admin-content { padding: 16px; padding-bottom: 40px; }
+.admin-section { background: #fff; border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+.admin-section-title { font-size: 13px; font-weight: 700; color: #8E8E93; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px 8px; border-bottom: 1px solid #F2F2F7; }
+.admin-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #F2F2F7; }
+.admin-row:last-child { border-bottom: none; }
+.admin-row-label { font-size: 15px; color: #1C1C1E; flex: 1; line-height: 1.3; }
+.admin-row-sub { font-size: 11px; color: #8E8E93; margin-top: 2px; }
+.btn-small { border: none; border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; background: #F2F2F7; color: #1C1C1E; }
+.btn-small.red { background: #FFE5E5; color: #C0392B; }
+.admin-select { border: 1px solid #E5E5EA; border-radius: 8px; padding: 8px 10px; font-size: 14px; color: #1C1C1E; background: #fff; }
+.add-form { padding: 12px 16px; display: flex; gap: 8px; }
+.admin-input { flex: 1; border: 1px solid #E5E5EA; border-radius: 8px; padding: 10px 12px; font-size: 15px; color: #1C1C1E; background: #fff; }
+.add-btn { background: #1C1C1E; color: #fff; border: none; border-radius: 8px; padding: 10px 14px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 
-  .cb {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 2px solid #D1D1D6;
-    flex-shrink: 0;
-    margin-right: 12px;
-    margin-top: 1px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    position: relative;
-  }
-  .cb.checked { background: #34C759; border-color: #34C759; }
-  .cb.checked::after {
-    content: '';
-    width: 6px;
-    height: 11px;
-    border: 2.5px solid #fff;
-    border-top: none;
-    border-left: none;
-    transform: rotate(45deg) translateY(-1px);
-  }
+/* TABS */
+.tabbar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: #fff; border-top: 1px solid #E5E5EA; display: flex; padding: 8px 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); z-index: 50; }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; }
+.tab .ti { font-size: 22px; }
+.tab .tl { font-size: 10px; color: #8E8E93; font-weight: 500; }
+.tab.active .tl { color: #1C1C1E; font-weight: 700; }
 
-  .item-body { flex: 1; }
-  .item-label { font-size: 15px; color: #1C1C1E; line-height: 1.4; }
-  .item-label.done { color: #8E8E93; text-decoration: line-through; }
-  .item-meta { font-size: 12px; color: #8E8E93; margin-top: 3px; }
-  .vortag-tag { font-size: 11px; color: #FF9500; font-weight: 700; margin-right: 4px; }
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal-sheet { background: #F2F2F7; border-radius: 20px 20px 0 0; padding: 12px 20px; padding-bottom: max(32px, env(safe-area-inset-bottom)); width: 100%; max-width: 430px; }
+.modal-handle { width: 36px; height: 4px; background: #D1D1D6; border-radius: 2px; margin: 0 auto 16px; }
+.modal-title { font-size: 17px; font-weight: 700; color: #1C1C1E; margin-bottom: 14px; }
+.name-btn { display: block; width: 100%; background: #fff; border: none; border-radius: 12px; padding: 15px 16px; font-size: 16px; font-weight: 500; color: #1C1C1E; text-align: left; margin-bottom: 8px; cursor: pointer; }
+.name-btn:active { background: #E5E5EA; }
+.cancel-btn { display: block; width: 100%; background: #fff; border: none; border-radius: 12px; padding: 15px 16px; font-size: 16px; color: #8E8E93; text-align: center; margin-top: 4px; cursor: pointer; }
 
-  /* === MONTH SCREEN === */
-  .month-screen {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: #F2F2F7;
-    z-index: 100;
-    flex-direction: column;
-    max-width: 100%;
-    overflow-y: auto;
-  }
-  .month-screen.open { display: flex; }
-
-  .month-header-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 18px 16px;
-    margin-bottom: 16px;
-    text-align: center;
-  }
-  .month-label-sm { font-size: 12px; color: #8E8E93; margin-bottom: 4px; }
-  .month-name { font-size: 24px; font-weight: 700; color: #1C1C1E; }
-
-  .month-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  .mc-area { font-size: 15px; font-weight: 600; color: #1C1C1E; margin-bottom: 10px; }
-  .mc-person-row { display: flex; align-items: center; gap: 12px; }
-  .mc-avatar {
-    width: 38px;
-    height: 38px;
-    background: #1C1C1E;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-  .mc-name { font-size: 16px; font-weight: 600; color: #1C1C1E; }
-  .mc-role { font-size: 12px; color: #8E8E93; margin-top: 1px; }
-  .readonly-note {
-    text-align: center;
-    font-size: 12px;
-    color: #C7C7CC;
-    padding: 16px 0 8px;
-  }
-
-  /* Tab bar */
-  .tabbar {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 430px;
-    background: #fff;
-    border-top: 1px solid #E5E5EA;
-    display: flex;
-    padding: 8px 0;
-    padding-bottom: max(8px, env(safe-area-inset-bottom));
-    z-index: 50;
-  }
-  .tab {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    cursor: pointer;
-    padding: 4px 0;
-  }
-  .tab .ti { font-size: 24px; }
-  .tab .tl { font-size: 10px; color: #8E8E93; font-weight: 500; }
-  .tab.active .tl { color: #1C1C1E; font-weight: 700; }
-
-  /* Name modal */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 200;
-    align-items: flex-end;
-    justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-sheet {
-    background: #F2F2F7;
-    border-radius: 20px 20px 0 0;
-    padding: 12px 20px;
-    padding-bottom: max(32px, env(safe-area-inset-bottom));
-    width: 100%;
-    max-width: 430px;
-  }
-  .modal-handle {
-    width: 36px;
-    height: 4px;
-    background: #D1D1D6;
-    border-radius: 2px;
-    margin: 0 auto 16px;
-  }
-  .modal-title { font-size: 17px; font-weight: 700; color: #1C1C1E; margin-bottom: 4px; }
-  .modal-sub { font-size: 13px; color: #8E8E93; margin-bottom: 14px; }
-  .name-btn {
-    display: block;
-    width: 100%;
-    background: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 15px 16px;
-    font-size: 16px;
-    font-weight: 500;
-    color: #1C1C1E;
-    text-align: left;
-    margin-bottom: 8px;
-    cursor: pointer;
-  }
-  .name-btn:active { background: #E5E5EA; }
-  .cancel-btn {
-    display: block;
-    width: 100%;
-    background: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 15px 16px;
-    font-size: 16px;
-    color: #8E8E93;
-    text-align: center;
-    margin-top: 4px;
-    cursor: pointer;
-  }
-
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 90px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1C1C1E;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 300;
-    opacity: 0;
-    transition: opacity 0.3s;
-    white-space: nowrap;
-  }
-  .toast.show { opacity: 1; }
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1C1C1E; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; z-index: 300; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
+.toast.show { opacity: 1; }
 </style>
 </head>
 <body>
 
-<!-- MAIN SCREEN -->
 <div class="topbar">
   <div class="topbar-left">
     <h1>Heute</h1>
-    <div class="sub">A Great Hair Day</div>
+    <div class="sub">Friseursalon Walenta</div>
   </div>
-  <button class="admin-btn" onclick="toggleAdmin()" title="Einstellungen">⚙️</button>
-</div>
-
-<!-- ADMIN SCREEN -->
-<div class="admin-screen" id="admin-screen">
-  <div class="detail-topbar">
-    <div class="back-btn" onclick="toggleAdmin()">‹ Zurück</div>
-    <h2>Einstellungen</h2>
-    <div class="dsub">Aufgaben & Team verwalten</div>
+  <div class="topbar-right">
+    <div id="sync-dot" title="Verbinde…"></div>
+    <button class="admin-btn" onclick="toggleAdmin()">⚙️</button>
   </div>
-  <div class="detail-content" id="admin-content"></div>
 </div>
 
-<div class="content" id="main-content">
-  <div class="loading">Wird geladen…</div>
-</div>
+<div class="content" id="main-content"><div class="loading">Wird geladen…</div></div>
 
-<!-- DETAIL SCREEN -->
+<!-- DETAIL -->
 <div class="detail-screen" id="detail-screen">
   <div class="detail-topbar">
     <div class="back-btn" onclick="closeDetail()">‹ Zurück</div>
     <h2 id="detail-title"></h2>
-    <div class="dsub" id="detail-sub">Checkliste heute</div>
+    <div class="detail-resp" id="detail-resp"></div>
   </div>
-  <div class="detail-content" id="detail-content">
-    <div class="loading">Wird geladen…</div>
-  </div>
+  <div class="tageszeit-tabs" id="tz-tabs"></div>
+  <div class="detail-content" id="detail-content"></div>
 </div>
 
-<!-- MONTH SCREEN -->
+<!-- MONTH -->
 <div class="month-screen" id="month-screen">
   <div class="detail-topbar">
     <div class="back-btn" onclick="closeMonth()">‹ Zurück</div>
     <h2>Monat</h2>
-    <div class="dsub">Aktuelle Zuweisung</div>
+    <div class="detail-resp">Aktuelle Zuweisung</div>
   </div>
-  <div class="detail-content" id="month-content">
-    <div class="loading">Wird geladen…</div>
-  </div>
+  <div style="padding:16px;padding-bottom:40px;" id="month-content"></div>
 </div>
 
-<!-- TAB BAR -->
+<!-- ADMIN -->
+<div class="admin-screen" id="admin-screen">
+  <div class="admin-topbar">
+    <div class="back-btn" onclick="closeAdmin()">‹ Zurück</div>
+    <h2 style="color:#fff;font-size:18px;font-weight:700;">Verwaltung</h2>
+    <div class="detail-resp">Nur für Mirjam</div>
+  </div>
+  <div class="admin-content" id="admin-content"></div>
+</div>
+
+<!-- TABS -->
 <div class="tabbar">
-  <div class="tab active" id="tab-heute" onclick="showMain()">
-    <div class="ti">☑️</div>
-    <div class="tl">Heute</div>
-  </div>
-  <div class="tab" id="tab-monat" onclick="showMonth()">
-    <div class="ti">👤</div>
-    <div class="tl">Monat</div>
-  </div>
+  <div class="tab active" id="tab-heute" onclick="showMain()"><div class="ti">☑️</div><div class="tl">Heute</div></div>
+  <div class="tab" id="tab-monat" onclick="showMonth()"><div class="ti">👤</div><div class="tl">Monat</div></div>
 </div>
 
-<!-- NAME MODAL -->
+<!-- MODAL -->
 <div class="modal-overlay" id="modal" onclick="cancelModal()">
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="modal-title">Wer hakt ab?</div>
-    <div class="modal-sub">Wähle deinen Namen</div>
-    <button class="name-btn" onclick="selectName('Mirjam')">Mirjam</button>
-    <button class="name-btn" onclick="selectName('Alina')">Alina</button>
-    <button class="name-btn" onclick="selectName('Mazen')">Mazen</button>
-    <button class="name-btn" onclick="selectName('Hassan')">Hassan</button>
-    <button class="name-btn" onclick="selectName('Ronya')">Ronya</button>
+    <div id="name-list"></div>
     <button class="cancel-btn" onclick="cancelModal()">Abbrechen</button>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── CONFIG ───────────────────────────────────────────────────
 const SUPABASE_URL = 'https://wrxlaltgtgkdomklgrlj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyeGxhbHRndGdrZG9ta2xncmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyNDYwMzYsImV4cCI6MjA5OTgyMjAzNn0.Bw8ch-EJb_cLYTwxHdpjUJWgoCjje3Jc32pB0yiBS8g';
 
-// ─── DATEN ────────────────────────────────────────────────────
 const BEREICHE = {
-  sauberkeit: {
-    name: 'Sauberkeit & Versorgung',
-    aufgaben: [
-      'Kund:innenplätze sauber',
-      'WC-Klopapier aufgefüllt',
-      'Papierhandtücher aufgefüllt',
-      'Farbmäntel nach jedem Gebrauch gewaschen',
-      'Schneidemäntel kontrolliert und bei Bedarf gewaschen'
-    ]
+  chemie: {
+    name: 'Chemiebereich',
+    aufgaben: {
+      morgens: [
+        'Lagerbestand prüfen: Farben und fehlende Produkte',
+        'Kontrolle von Folien, Küchenrolle, Müllsäcke, Watte',
+        'Kaffeemaschine reinigen, Getränke nachfüllen',
+        'Kontrolle DW-Wickler / Gummi'
+      ],
+      untertags: [
+        'Farbschalen gleich abwaschen',
+        'Farbtuben die nicht mehr gebraucht werden wegräumen',
+        'Waschbecken sauber halten',
+        'FA+DW-Wagerl reinigen',
+        'Boden auf Farbflecken kontrollieren'
+      ],
+      abends: [
+        'Müll ausleeren',
+        'Sessel abwischen',
+        'Aufkehren',
+        'Färbemäntel auf Sauberkeit kontrollieren'
+      ],
+      woechentlich: [
+        'Lagerbestandskontrolle Keller + Farben',
+        'Kaffeemaschine reinigen (Fr + Sa)'
+      ]
+    }
   },
-  getraenke: {
-    name: 'Getränkeversorgung',
-    aufgaben: [
-      'Getränke für Kund:innenbereich aufgefüllt',
-      'Getränkestation oder Kühlschrank kontrolliert',
-      'Mindestbestand geprüft',
-      'Nachbestellbedarf markiert'
-    ]
+  damen: {
+    name: 'Damenbereich',
+    aufgaben: {
+      morgens: [
+        'Schneidemäntel auf Sauberkeit kontrollieren',
+        'Handtücher zusammenlegen und einordnen',
+        'Rezeption in Ordnung bringen'
+      ],
+      untertags: [
+        'Ablagen abwischen nach jedem Kunden',
+        'Handspiegel sauber halten',
+        'Aufkehren nach jedem Kunden',
+        'Waschbecken sauber halten',
+        'Zeitungen ordnen'
+      ],
+      abends: [
+        'Sessel abwischen',
+        'Müll und Staubsauger ausleeren',
+        'Boden auf Farbflecken kontrollieren'
+      ],
+      woechentlich: [
+        'Verkaufsregale reinigen und Produkte nachfüllen (Di–Mi)',
+        'Haarschneidemaschinen säubern und ölen',
+        'Föns reinigen – Filter (Mi–Do)'
+      ]
+    }
+  },
+  herren: {
+    name: 'Herrenbereich / Rezeption',
+    aufgaben: {
+      morgens: [
+        'Schneidemäntel auf Sauberkeit kontrollieren',
+        'Handtücher zusammenlegen und einordnen',
+        'Zeitungen ordnen'
+      ],
+      untertags: [
+        'Ablagen abwischen nach jedem Kunden',
+        'Waschbecken sauber halten',
+        'Aufkehren nach jedem Kunden',
+        'Handspiegel sauber halten'
+      ],
+      abends: [
+        'Sessel abwischen',
+        'Müll und Staubsauger ausleeren',
+        'Boden auf Farbflecken kontrollieren'
+      ],
+      woechentlich: [
+        'Produktwagen reinigen (Di oder Mi)',
+        'Verkaufsregale reinigen und Produkte nachfüllen (Di oder Mi)',
+        'Haarschneidemaschinen säubern und ölen',
+        'Föns reinigen – Filter (Mi oder Do)'
+      ]
+    }
+  },
+  kueche: {
+    name: 'Küche / WC / Trockner',
+    aufgaben: {
+      morgens: [
+        'WC-Papier, Papierhandtücher, Seifenspender nachfüllen',
+        'Waschbecken reinigen',
+        'Getränke nachfüllen',
+        'Boden kontrollieren'
+      ],
+      untertags: [
+        'Küche sauber halten – Essensreste wegräumen',
+        'Geschirr einräumen',
+        'Mikrowelle nach Gebrauch reinigen',
+        'Küchenablage abwischen'
+      ],
+      abends: [
+        'Müll ausleeren',
+        'Aufkehren',
+        'Staubsauger ausleeren',
+        'Trockner reinigen – Sieb auswaschen',
+        'Kontrolle Folien, Küchenrolle, Müllsäcke'
+      ],
+      woechentlich: [
+        'Kühlschrank reinigen, Essen mitnehmen oder wegwerfen (Fr / Sa)'
+      ]
+    }
   }
 };
 
-const TEAM = ['Mirjam', 'Alina', 'Mazen', 'Hassan', 'Ronya'];
+const TAGESZEITEN = [
+  { key: 'morgens', label: 'Morgens', icon: '🌅' },
+  { key: 'untertags', label: 'Untertags', icon: '☀️' },
+  { key: 'abends', label: 'Abends', icon: '🌙' },
+  { key: 'woechentlich', label: '1× Woche', icon: '📋' }
+];
 
-// ─── DATUM ────────────────────────────────────────────────────
+let TEAM = ['Mirjam','Alina','Mazen','Hassan','Ronya'];
+
 const HEUTE = new Date();
-const HEUTE_STR = formatDate(HEUTE);
-const GESTERN = new Date(HEUTE); GESTERN.setDate(GESTERN.getDate() - 1);
-const GESTERN_STR = formatDate(GESTERN);
+const HEUTE_STR = fmtDate(HEUTE);
+const GESTERN = new Date(HEUTE); GESTERN.setDate(GESTERN.getDate()-1);
+const GESTERN_STR = fmtDate(GESTERN);
 const MONAT_STR = `${HEUTE.getFullYear()}-${String(HEUTE.getMonth()+1).padStart(2,'0')}`;
-
-function formatDate(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
 const WOCHENTAGE = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 const MONATE_DE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 const DATUM_ANZEIGE = `${WOCHENTAGE[HEUTE.getDay()]}, ${HEUTE.getDate()}. ${MONATE_DE[HEUTE.getMonth()]}`;
 const MONAT_ANZEIGE = `${MONATE_DE[HEUTE.getMonth()]} ${HEUTE.getFullYear()}`;
 
-// ─── STATE ────────────────────────────────────────────────────
-let checksHeute = {};    // { "sauberkeit-0": {person, uhrzeit}, ... }
+function fmtDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+let checksHeute = {};
 let checksGestern = {};
-let zuweisung = {};      // { sauberkeit: "Alina", getraenke: "Mazen" }
+let zuweisung = {};
 let pendingBereich = null;
+let pendingTageszeit = null;
 let pendingIndex = null;
 let currentDetailBereich = null;
+let currentTageszeit = 'morgens';
 
-// ─── SUPABASE API ─────────────────────────────────────────────
-async function sbFetch(path, opts = {}) {
+async function sbFetch(path, opts={}) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': opts.prefer || 'return=representation',
-      ...opts.headers
-    },
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': opts.prefer||'return=representation', ...opts.headers },
     ...opts
   });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err);
-  }
   const text = await res.text();
+  if(!res.ok) throw new Error(text);
   return text ? JSON.parse(text) : [];
 }
 
 async function ladeAlles() {
   try {
-    // Zuweisung
     const zuw = await sbFetch(`salon_monatszuweisung?monat=eq.${MONAT_STR}&select=bereich,person`);
     zuweisung = {};
     zuw.forEach(z => { zuweisung[z.bereich] = z.person; });
 
-    // Checks heute
-    const ch = await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&select=bereich,aufgabe_index,person,uhrzeit`);
+    const ch = await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&select=bereich,tageszeit,aufgabe_index,person,uhrzeit`);
     checksHeute = {};
-    ch.forEach(c => { checksHeute[`${c.bereich}-${c.aufgabe_index}`] = { person: c.person, uhrzeit: c.uhrzeit }; });
+    ch.forEach(c => { checksHeute[`${c.bereich}-${c.tageszeit}-${c.aufgabe_index}`] = {person:c.person,uhrzeit:c.uhrzeit}; });
 
-    // Checks gestern
-    const cg = await sbFetch(`salon_checks?datum=eq.${GESTERN_STR}&select=bereich,aufgabe_index,erledigt`);
+    const cg = await sbFetch(`salon_checks?datum=eq.${GESTERN_STR}&select=bereich,tageszeit,aufgabe_index,erledigt`);
     checksGestern = {};
-    cg.forEach(c => {
-      if (c.erledigt) checksGestern[`${c.bereich}-${c.aufgabe_index}`] = true;
-    });
+    cg.forEach(c => { if(c.erledigt) checksGestern[`${c.bereich}-${c.tageszeit}-${c.aufgabe_index}`] = true; });
 
     renderMain();
   } catch(e) {
-    document.getElementById('main-content').innerHTML =
-      `<div class="loading">⚠️ Verbindung fehlgeschlagen.<br><small>${e.message}</small></div>`;
+    document.getElementById('main-content').innerHTML = `<div class="loading">⚠️ Verbindung fehlgeschlagen.<br><small>${e.message}</small></div>`;
   }
 }
 
-// ─── RENDER MAIN ──────────────────────────────────────────────
-function renderMain() {
-  const checkBadge = istFruehdienst() ? 'Morgencheck' : 'Abendcheck';
+function getTotalUndDone(bereichKey) {
+  const b = BEREICHE[bereichKey];
+  let total = 0, done = 0;
+  // Nur morgens, untertags, abends (nicht wöchentlich) für Tagesfortschritt
+  const tzKeys = HEUTE.getDay() === 0 || HEUTE.getDay() === 6 ? ['morgens','untertags','abends','woechentlich'] : ['morgens','untertags','abends'];
+  tzKeys.forEach(tz => {
+    (b.aufgaben[tz]||[]).forEach((_,i) => {
+      total++;
+      if(checksHeute[`${bereichKey}-${tz}-${i}`]) done++;
+    });
+  });
+  return {total, done};
+}
 
+function renderMain() {
+  const badge = HEUTE.getHours() < 13 ? 'Morgencheck' : 'Abendcheck';
   let html = `
     <div class="date-banner">
-      <div>
-        <div class="dt">${DATUM_ANZEIGE}</div>
-        <div class="dsub">Tagesübersicht</div>
-      </div>
-      <div class="check-badge">${checkBadge}</div>
+      <div><div class="dt">${DATUM_ANZEIGE}</div><div class="dsub">Tagesübersicht</div></div>
+      <div class="check-badge">${badge}</div>
     </div>
-    <div class="slabel">Verantwortungsbereiche</div>
-  `;
+    <div class="slabel">Verantwortungsbereiche</div>`;
 
-  Object.entries(BEREICHE).forEach(([key, bereich]) => {
-    const total = bereich.aufgaben.length;
-    const done = bereich.aufgaben.filter((_, i) => checksHeute[`${key}-${i}`]).length;
-    const pct = Math.round((done / total) * 100);
-    const fillClass = pct === 100 ? 'done' : pct > 0 ? 'partial' : 'empty';
-    const person = zuweisung[key] || '–';
-
+  Object.entries(BEREICHE).forEach(([key,b]) => {
+    const {total,done} = getTotalUndDone(key);
+    const pct = total > 0 ? Math.round((done/total)*100) : 0;
+    const fc = pct===100?'done':pct>0?'partial':'empty';
+    const person = zuweisung[key]||'–';
     html += `
       <div class="area-card" onclick="openDetail('${key}')">
-        <div class="card-top">
-          <div class="area-name">${bereich.name}</div>
-          <div class="resp-pill">${person}</div>
-        </div>
+        <div class="card-top"><div class="area-name">${b.name}</div><div class="resp-pill">${person}</div></div>
         <div class="prog-row">
-          <div class="prog-bg"><div class="prog-fill ${fillClass}" style="width:${pct}%"></div></div>
+          <div class="prog-bg"><div class="prog-fill ${fc}" style="width:${pct}%"></div></div>
           <div class="prog-text">${done} von ${total}</div>
           <div class="arrow">›</div>
         </div>
-      </div>
-    `;
+      </div>`;
   });
 
-  html += `
-    <div class="slabel" style="margin-top:4px;">Hinweis</div>
-    <div class="info-box">
-      Morgencheck: erste anwesende Person prüft alle Bereiche.<br>
-      Abendcheck: letzte Person vor Salonschluss.
-    </div>
-  `;
-
+  html += `<div class="slabel" style="margin-top:4px;">Hinweis</div>
+    <div class="info-box">Morgencheck: erste anwesende Person.<br>Abendcheck: letzte Person vor Salonschluss.</div>`;
   document.getElementById('main-content').innerHTML = html;
 }
 
-function istFruehdienst() {
-  return HEUTE.getHours() < 13;
-}
-
-// ─── DETAIL ───────────────────────────────────────────────────
-function openDetail(bereichKey) {
-  currentDetailBereich = bereichKey;
-  const bereich = BEREICHE[bereichKey];
-  const person = zuweisung[bereichKey] || '–';
-
-  document.getElementById('detail-title').textContent = bereich.name;
+function openDetail(key) {
+  currentDetailBereich = key;
+  currentTageszeit = HEUTE.getHours() < 13 ? 'morgens' : HEUTE.getHours() < 17 ? 'untertags' : 'abends';
+  const b = BEREICHE[key];
+  const person = zuweisung[key]||'–';
+  document.getElementById('detail-title').textContent = b.name;
+  document.getElementById('detail-resp').innerHTML = `Verantwortlich: <span>${person}</span>`;
   document.getElementById('detail-screen').classList.add('open');
-
-  renderDetail(bereichKey);
+  renderTzTabs();
+  renderDetail();
 }
 
-function renderDetail(bereichKey) {
-  const bereich = BEREICHE[bereichKey];
-  const person = zuweisung[bereichKey] || '–';
-
-  // Offene Punkte von gestern zählen
-  let vortag = 0;
-  bereich.aufgaben.forEach((_, i) => {
-    const key = `${bereichKey}-${i}`;
-    if (!checksGestern[key] && !checksHeute[key]) vortag++;
+function renderTzTabs() {
+  const key = currentDetailBereich;
+  const b = BEREICHE[key];
+  let html = '';
+  TAGESZEITEN.forEach(tz => {
+    const aufgaben = b.aufgaben[tz.key]||[];
+    const done = aufgaben.filter((_,i)=>checksHeute[`${key}-${tz.key}-${i}`]).length;
+    const active = tz.key === currentTageszeit ? ' active' : '';
+    html += `<button class="tz-tab${active}" onclick="switchTz('${tz.key}')">
+      ${tz.icon} ${tz.label}<span class="tz-count">${done}/${aufgaben.length}</span>
+    </button>`;
   });
-  // Nur anzeigen wenn gestern überhaupt Checks gab
-  const hatGesternDaten = bereich.aufgaben.some((_, i) => checksGestern[`${bereichKey}-${i}`]);
-  const vortagBanner = (hatGesternDaten && vortag > 0)
-    ? `<div class="vortag-banner">⚠ ${vortag} Punkt${vortag > 1 ? 'e' : ''} von gestern offen geblieben</div>`
-    : '';
+  document.getElementById('tz-tabs').innerHTML = html;
+}
+
+function switchTz(tz) {
+  currentTageszeit = tz;
+  renderTzTabs();
+  renderDetail();
+}
+
+function renderDetail() {
+  const key = currentDetailBereich;
+  const tz = currentTageszeit;
+  const aufgaben = BEREICHE[key].aufgaben[tz]||[];
+
+  const hatGestern = aufgaben.some((_,i)=>checksGestern[`${key}-${tz}-${i}`]);
+  const vortagOffen = hatGestern ? aufgaben.filter((_,i)=>!checksGestern[`${key}-${tz}-${i}`]&&!checksHeute[`${key}-${tz}-${i}`]).length : 0;
+  let banner = vortagOffen > 0 ? `<div class="vortag-banner">⚠ ${vortagOffen} Punkt${vortagOffen>1?'e':''} von gestern noch offen</div>` : '';
+
+  if(aufgaben.length === 0) {
+    document.getElementById('detail-content').innerHTML = `<div class="empty-state">Keine Aufgaben für diesen Zeitraum</div>`;
+    return;
+  }
 
   let items = '';
-  bereich.aufgaben.forEach((aufgabe, i) => {
-    const key = `${bereichKey}-${i}`;
-    const check = checksHeute[key];
+  aufgaben.forEach((aufgabe,i) => {
+    const k = `${key}-${tz}-${i}`;
+    const check = checksHeute[k];
     const done = !!check;
-    const warGesternOffen = hatGesternDaten && !checksGestern[key] && !done;
-
-    const cbClass = done ? 'cb checked' : 'cb';
-    const lblClass = done ? 'item-label done' : 'item-label';
-    const rowClass = warGesternOffen ? 'check-item vortag' : 'check-item';
-    const meta = done ? `${check.person} · ${check.uhrzeit}` : 'Noch nicht erledigt';
-    const vtTag = warGesternOffen ? '<span class="vortag-tag">GESTERN OFFEN</span>' : '';
-
+    const vortag = hatGestern && !checksGestern[k] && !done;
     items += `
-      <div class="${rowClass}" onclick="toggleItem('${bereichKey}', ${i})">
-        <div class="${cbClass}" id="cb-${bereichKey}-${i}"></div>
+      <div class="check-item${vortag?' vortag':''}" onclick="toggleItem('${key}','${tz}',${i})">
+        <div class="cb${done?' checked':''}"></div>
         <div class="item-body">
-          <div class="${lblClass}" id="lbl-${bereichKey}-${i}">${vtTag}${aufgabe}</div>
-          <div class="item-meta" id="meta-${bereichKey}-${i}">${meta}</div>
+          <div class="item-label${done?' done':''}">${vortag?'<span class="vortag-dot"></span>':''}${aufgabe}</div>
+          ${done?`<div class="item-meta">${check.person} · ${check.uhrzeit}</div>`:''}
         </div>
-      </div>
-    `;
+      </div>`;
   });
 
-  document.getElementById('detail-content').innerHTML = `
-    <div class="detail-header">
-      <div style="font-size:17px;font-weight:700;color:#1C1C1E;">${bereich.name}</div>
-      <div class="resp-row">
-        <div class="resp-label">Verantwortlich ${MONATE_DE[HEUTE.getMonth()]}:</div>
-        <div class="resp-name">${person}</div>
-      </div>
-    </div>
-    ${vortagBanner}
-    <div class="slabel">Checkliste – heute</div>
-    <div class="checklist-card">${items}</div>
-  `;
+  document.getElementById('detail-content').innerHTML = `${banner}<div class="checklist-card">${items}</div>`;
 }
 
 function closeDetail() {
@@ -703,175 +491,92 @@ function closeDetail() {
   renderMain();
 }
 
-// ─── TOGGLE ───────────────────────────────────────────────────
-function toggleItem(bereich, index) {
-  const key = `${bereich}-${index}`;
-  if (checksHeute[key]) {
-    // Rückgängig machen
-    uncheckeItem(bereich, index);
-    return;
-  }
+function toggleItem(bereich, tz, index) {
+  const k = `${bereich}-${tz}-${index}`;
+  if(checksHeute[k]) { uncheckeItem(bereich,tz,index); return; }
   pendingBereich = bereich;
+  pendingTageszeit = tz;
   pendingIndex = index;
+  document.getElementById('name-list').innerHTML = TEAM.map(n=>`<button class="name-btn" onclick="selectName('${n}')">${n}</button>`).join('');
   document.getElementById('modal').classList.add('open');
 }
 
 async function selectName(name) {
   document.getElementById('modal').classList.remove('open');
-  const bereich = pendingBereich;
-  const index = pendingIndex;
-  const key = `${bereich}-${index}`;
-
+  const bereich = pendingBereich, tz = pendingTageszeit, index = pendingIndex;
+  const k = `${bereich}-${tz}-${index}`;
   const now = new Date();
   const uhrzeit = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-  // Optimistisch updaten
-  checksHeute[key] = { person: name, uhrzeit };
-  renderDetail(bereich);
-
+  checksHeute[k] = {person:name,uhrzeit};
+  renderDetail(); renderTzTabs();
   try {
-    await sbFetch('salon_checks', {
-      method: 'POST',
-      prefer: 'resolution=merge-duplicates',
-      body: JSON.stringify({
-        datum: HEUTE_STR,
-        bereich,
-        aufgabe_index: index,
-        person: name,
-        uhrzeit,
-        erledigt: true
-      })
-    });
-    showToast(`✓ ${name} hat abgehakt`);
-  } catch(e) {
-    // Rollback
-    delete checksHeute[key];
-    renderDetail(bereich);
-    showToast('⚠ Fehler beim Speichern');
-  }
+    await sbFetch('salon_checks',{method:'POST',prefer:'resolution=merge-duplicates',body:JSON.stringify({datum:HEUTE_STR,bereich,tageszeit:tz,aufgabe_index:index,person:name,uhrzeit,erledigt:true})});
+    showToast(`✓ ${name}`);
+  } catch(e) { delete checksHeute[k]; renderDetail(); showToast('⚠ Fehler'); }
 }
 
-async function uncheckeItem(bereich, index) {
-  const key = `${bereich}-${index}`;
-  const prev = checksHeute[key];
-  delete checksHeute[key];
-  renderDetail(bereich);
-
-  try {
-    await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&bereich=eq.${bereich}&aufgabe_index=eq.${index}`, {
-      method: 'DELETE',
-      prefer: ''
-    });
-  } catch(e) {
-    checksHeute[key] = prev;
-    renderDetail(bereich);
-    showToast('⚠ Fehler beim Entfernen');
-  }
+async function uncheckeItem(bereich,tz,index) {
+  const k = `${bereich}-${tz}-${index}`, prev = checksHeute[k];
+  delete checksHeute[k]; renderDetail(); renderTzTabs();
+  try { await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&bereich=eq.${bereich}&tageszeit=eq.${tz}&aufgabe_index=eq.${index}`,{method:'DELETE',prefer:''}); }
+  catch(e) { checksHeute[k]=prev; renderDetail(); }
 }
 
-function cancelModal() {
-  document.getElementById('modal').classList.remove('open');
-}
+function cancelModal() { document.getElementById('modal').classList.remove('open'); }
 
-// ─── MONTH ────────────────────────────────────────────────────
-async function showMonth() {
-  document.getElementById('tab-heute').classList.remove('active');
-  document.getElementById('tab-monat').classList.add('active');
+function showMonth() {
+  setTab('monat');
   document.getElementById('month-screen').classList.add('open');
-
-  let html = `
-    <div class="month-header-card">
-      <div class="month-label-sm">Aktuelle Zuweisung</div>
-      <div class="month-name">${MONAT_ANZEIGE}</div>
-    </div>
-    <div class="slabel">Verantwortliche Personen</div>
-  `;
-
-  Object.entries(BEREICHE).forEach(([key, bereich]) => {
-    const person = zuweisung[key] || '–';
-    const initial = person.charAt(0);
-    html += `
-      <div class="month-card">
-        <div class="mc-area">${bereich.name}</div>
-        <div class="mc-person-row">
-          <div class="mc-avatar">${initial}</div>
-          <div>
-            <div class="mc-name">${person}</div>
-            <div class="mc-role">Hauptverantwortlich ${MONATE_DE[HEUTE.getMonth()]}</div>
-          </div>
-        </div>
-      </div>
-    `;
+  let html = `<div class="month-header-card"><div class="month-label-sm">Aktuelle Zuweisung</div><div class="month-name">${MONAT_ANZEIGE}</div></div><div class="slabel">Verantwortliche Personen</div>`;
+  Object.entries(BEREICHE).forEach(([key,b]) => {
+    const person = zuweisung[key]||'–';
+    html += `<div class="month-card"><div class="mc-area">${b.name}</div><div class="mc-person-row"><div class="mc-avatar">${person.charAt(0)}</div><div><div class="mc-name">${person}</div><div class="mc-role">Hauptverantwortlich ${MONATE_DE[HEUTE.getMonth()]}</div></div></div></div>`;
   });
-
-  html += `<div class="readonly-note">Nur lesend – Änderungen werden von Mirjam eingetragen</div>`;
   document.getElementById('month-content').innerHTML = html;
 }
+function closeMonth() { document.getElementById('month-screen').classList.remove('open'); setTab('heute'); }
+function showMain() { setTab('heute'); document.getElementById('month-screen').classList.remove('open'); }
 
-function closeMonth() {
-  document.getElementById('month-screen').classList.remove('open');
-  document.getElementById('tab-monat').classList.remove('active');
-  document.getElementById('tab-heute').classList.add('active');
-}
-
-function showMain() {
-  document.getElementById('tab-monat').classList.remove('active');
-  document.getElementById('tab-heute').classList.add('active');
-  document.getElementById('month-screen').classList.remove('open');
-}
-
-// ─── TOAST ────────────────────────────────────────────────────
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// ─── START ────────────────────────────────────────────────────
-ladeAlles();
-
-// ─── ADMIN ────────────────────────────────────────────────────
 function toggleAdmin() {
   const s = document.getElementById('admin-screen');
-  if(s.classList.contains('open')){
-    s.classList.remove('open');
-    return;
-  }
-  const pw = prompt('Admin-Passwort eingeben:');
-  if(pw === 'walenta2026'){
-    s.classList.add('open');
-    renderAdmin();
-  } else if(pw !== null) {
-    showToast('❌ Falsches Passwort');
-  }
+  if(s.classList.contains('open')) { s.classList.remove('open'); return; }
+  const pw = prompt('Admin-Passwort:');
+  if(pw === 'walenta2026') { s.classList.add('open'); renderAdmin(); }
+  else if(pw !== null) showToast('❌ Falsches Passwort');
 }
+function closeAdmin() { document.getElementById('admin-screen').classList.remove('open'); }
 
 function renderAdmin() {
   let html = '';
-  // Zuweisungen
-  html += '<div class="admin-section"><div class="admin-section-title">Monatliche Zuweisungen</div>';
+  // Monatszuweisung
+  html += `<div class="admin-section"><div class="admin-section-title">Monatszuweisung – ${MONAT_ANZEIGE}</div>`;
   Object.entries(BEREICHE).forEach(([key,b]) => {
-    const curr = zuweisung[key] || '';
-    html += `<div class="admin-row"><div class="admin-row-label">${b.name}</div>
+    const curr = zuweisung[key]||'';
+    html += `<div class="admin-row">
+      <div><div class="admin-row-label">${b.name}</div><div class="admin-row-sub">Verantwortlich: ${curr||'–'}</div></div>
       <select class="admin-select" onchange="zuweisungAendern('${key}',this.value)">
         <option value="">–</option>
-        ${TEAM.map(n=>`<option value="${n}" ${curr===n?'selected':''}>${n}</option>`).join('')}
+        ${TEAM.map(n=>`<option value="${n}"${curr===n?' selected':''}>${n}</option>`).join('')}
       </select></div>`;
   });
   html += '</div>';
-  // Aufgaben
+
+  // Aufgaben pro Bereich und Tageszeit
   Object.entries(BEREICHE).forEach(([key,b]) => {
-    html += `<div class="admin-section"><div class="admin-section-title">Aufgaben – ${b.name}</div>`;
-    b.aufgaben.forEach((a,i) => {
-      html += `<div class="admin-row"><div class="admin-row-label">${a}</div>
-        <button class="btn-small red" onclick="aufgabeLoeschen('${key}',${i})">Löschen</button></div>`;
+    TAGESZEITEN.forEach(tz => {
+      const aufgaben = b.aufgaben[tz.key]||[];
+      html += `<div class="admin-section"><div class="admin-section-title">${b.name} – ${tz.label}</div>`;
+      aufgaben.forEach((a,i) => {
+        html += `<div class="admin-row"><div class="admin-row-label">${a}</div>
+          <button class="btn-small red" onclick="aufgabeLoeschen('${key}','${tz.key}',${i})">Löschen</button></div>`;
+      });
+      html += `<div class="add-form">
+        <input class="admin-input" id="neu-${key}-${tz.key}" placeholder="Neue Aufgabe…" type="text">
+        <button class="add-btn" onclick="aufgabeHinzufuegen('${key}','${tz.key}')">+</button>
+      </div></div>`;
     });
-    html += `<div class="add-form">
-      <input class="admin-input" id="neue-aufgabe-${key}" placeholder="Neue Aufgabe…" type="text">
-      <button class="add-btn" onclick="aufgabeHinzufuegen('${key}')">+ Hinzufügen</button>
-    </div></div>`;
   });
+
   // Team
   html += '<div class="admin-section"><div class="admin-section-title">Team</div>';
   TEAM.forEach((name,i) => {
@@ -880,31 +585,101 @@ function renderAdmin() {
   });
   html += `<div class="add-form">
     <input class="admin-input" id="neuer-name" placeholder="Name hinzufügen…" type="text">
-    <button class="add-btn" onclick="teamHinzufuegen()">+ Hinzufügen</button>
+    <button class="add-btn" onclick="teamHinzufuegen()">+</button>
   </div></div>`;
+
   document.getElementById('admin-content').innerHTML = html;
 }
 
-function aufgabeHinzufuegen(key) {
-  const inp = document.getElementById('neue-aufgabe-'+key);
+async function zuweisungAendern(key, person) {
+  if(!person) return;
+  zuweisung[key] = person;
+  try {
+    await sbFetch(`salon_monatszuweisung?monat=eq.${MONAT_STR}&bereich=eq.${key}`,{method:'DELETE',prefer:''});
+    await sbFetch('salon_monatszuweisung',{method:'POST',body:JSON.stringify({monat:MONAT_STR,bereich:key,person})});
+    showToast(`✓ ${person} ist jetzt verantwortlich`);
+    renderAdmin();
+  } catch(e) { showToast('⚠ Fehler beim Speichern'); }
+}
+
+function aufgabeHinzufuegen(key,tz) {
+  const inp = document.getElementById(`neu-${key}-${tz}`);
   const t = inp.value.trim(); if(!t) return;
-  BEREICHE[key].aufgaben.push(t); inp.value = '';
+  BEREICHE[key].aufgaben[tz].push(t); inp.value='';
   renderAdmin(); showToast('✓ Aufgabe hinzugefügt');
 }
-function aufgabeLoeschen(key,i) {
-  BEREICHE[key].aufgaben.splice(i,1);
+function aufgabeLoeschen(key,tz,i) {
+  BEREICHE[key].aufgaben[tz].splice(i,1);
   renderAdmin(); showToast('Aufgabe entfernt');
 }
 function teamHinzufuegen() {
   const inp = document.getElementById('neuer-name');
   const n = inp.value.trim(); if(!n) return;
-  TEAM.push(n); inp.value = '';
-  renderAdmin(); showToast('✓ '+n+' hinzugefügt');
+  TEAM.push(n); inp.value=''; renderAdmin(); showToast(`✓ ${n} hinzugefügt`);
 }
-function teamEntfernen(i) {
-  TEAM.splice(i,1);
-  renderAdmin(); showToast('Entfernt');
+function teamEntfernen(i) { TEAM.splice(i,1); renderAdmin(); showToast('Entfernt'); }
+
+function setTab(name) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
 }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// REALTIME
+function startRealtime() {
+  const wsUrl = SUPABASE_URL.replace('https://','wss://')+'/realtime/v1/websocket?apikey='+SUPABASE_KEY+'&vsn=1.0.0';
+  let ws, hb;
+  function connect() {
+    try { ws = new WebSocket(wsUrl); } catch(e) { setTimeout(connect,5000); return; }
+    ws.onopen = () => {
+      ws.send(JSON.stringify({topic:'realtime:public:salon_checks',event:'phx_join',payload:{config:{broadcast:{self:false},postgres_changes:[{event:'*',schema:'public',table:'salon_checks'}]}},ref:'1'}));
+      ws.send(JSON.stringify({topic:'realtime:public:salon_monatszuweisung',event:'phx_join',payload:{config:{broadcast:{self:false},postgres_changes:[{event:'*',schema:'public',table:'salon_monatszuweisung'}]}},ref:'2'}));
+      hb = setInterval(()=>{ if(ws.readyState===1) ws.send(JSON.stringify({topic:'phoenix',event:'heartbeat',payload:{},ref:'hb'})); },25000);
+      zeigeSyncStatus(true);
+    };
+    ws.onmessage = (evt) => {
+      try {
+        const msg = JSON.parse(evt.data);
+        if(msg.event==='postgres_changes') {
+          const d = msg.payload?.data;
+          if(!d) return;
+          // Checks
+          if(d.type==='INSERT'||d.type==='UPDATE') {
+            const r = d.record;
+            if(r.datum===HEUTE_STR) {
+              const k = `${r.bereich}-${r.tageszeit}-${r.aufgabe_index}`;
+              if(r.erledigt) checksHeute[k]={person:r.person,uhrzeit:r.uhrzeit};
+              else delete checksHeute[k];
+            }
+            // Zuweisung
+            if(r.monat) { zuweisung[r.bereich]=r.person; }
+          } else if(d.type==='DELETE') {
+            const r = d.old_record;
+            if(r&&r.datum===HEUTE_STR) delete checksHeute[`${r.bereich}-${r.tageszeit}-${r.aufgabe_index}`];
+          }
+          if(currentDetailBereich) { renderDetail(); renderTzTabs(); }
+          renderMain();
+        }
+      } catch(e) {}
+    };
+    ws.onclose = () => { clearInterval(hb); zeigeSyncStatus(false); setTimeout(connect,3000); };
+    ws.onerror = () => zeigeSyncStatus(false);
+  }
+  connect();
+}
+
+function zeigeSyncStatus(online) {
+  const dot = document.getElementById('sync-dot');
+  if(dot) dot.style.background = online?'#34C759':'#FF9500';
+}
+
+ladeAlles();
+startRealtime();
 </script>
 </body>
 </html>
