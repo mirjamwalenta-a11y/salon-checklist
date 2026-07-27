@@ -361,13 +361,13 @@ async function ladeAlles() {
     zuweisung = {};
     zuw.forEach(z => { zuweisung[z.bereich] = z.person; });
 
-    const ch = await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&select=bereich,tageszeit,aufgabe_index,person,uhrzeit`);
+    const ch = await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&select=bereich,aufgabe_index,person,uhrzeit`);
     checksHeute = {};
-    ch.forEach(c => { checksHeute[`${c.bereich}-${c.tageszeit}-${c.aufgabe_index}`] = {person:c.person,uhrzeit:c.uhrzeit}; });
+    ch.forEach(c => { const parts=c.aufgabe_index.split('|'); if(parts.length===2) checksHeute[`${c.bereich}-${parts[0]}-${parts[1]}`] = {person:c.person,uhrzeit:c.uhrzeit}; });
 
-    const cg = await sbFetch(`salon_checks?datum=eq.${GESTERN_STR}&select=bereich,tageszeit,aufgabe_index,erledigt`);
+    const cg = await sbFetch(`salon_checks?datum=eq.${GESTERN_STR}&select=bereich,aufgabe_index,erledigt`);
     checksGestern = {};
-    cg.forEach(c => { if(c.erledigt) checksGestern[`${c.bereich}-${c.tageszeit}-${c.aufgabe_index}`] = true; });
+    cg.forEach(c => { if(c.erledigt) { const parts=c.aufgabe_index.split('|'); if(parts.length===2) checksGestern[`${c.bereich}-${parts[0]}-${parts[1]}`] = true; } });
 
     renderMain();
   } catch(e) {
@@ -510,7 +510,7 @@ async function selectName(name) {
   checksHeute[k] = {person:name,uhrzeit};
   renderDetail(); renderTzTabs();
   try {
-    await sbFetch('salon_checks',{method:'POST',prefer:'resolution=merge-duplicates',body:JSON.stringify({datum:HEUTE_STR,bereich,tageszeit:tz,aufgabe_index:index,person:name,uhrzeit,erledigt:true})});
+    await sbFetch('salon_checks',{method:'POST',prefer:'resolution=merge-duplicates',body:JSON.stringify({datum:HEUTE_STR,bereich,aufgabe_index:`${tz}|${index}`,person:name,uhrzeit,erledigt:true})});
     showToast(`✓ ${name}`);
   } catch(e) { delete checksHeute[k]; renderDetail(); showToast('⚠ Fehler'); }
 }
@@ -518,7 +518,7 @@ async function selectName(name) {
 async function uncheckeItem(bereich,tz,index) {
   const k = `${bereich}-${tz}-${index}`, prev = checksHeute[k];
   delete checksHeute[k]; renderDetail(); renderTzTabs();
-  try { await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&bereich=eq.${bereich}&tageszeit=eq.${tz}&aufgabe_index=eq.${index}`,{method:'DELETE',prefer:''}); }
+  try { await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&bereich=eq.${bereich}&aufgabe_index=eq.${tz}|${index}`,{method:'DELETE',prefer:''}); }
   catch(e) { checksHeute[k]=prev; renderDetail(); }
 }
 
@@ -652,7 +652,8 @@ function startRealtime() {
           if(d.type==='INSERT'||d.type==='UPDATE') {
             const r = d.record;
             if(r.datum===HEUTE_STR) {
-              const k = `${r.bereich}-${r.tageszeit}-${r.aufgabe_index}`;
+              const parts=r.aufgabe_index?r.aufgabe_index.split('|'):[];
+              const k = parts.length===2?`${r.bereich}-${parts[0]}-${parts[1]}`:`${r.bereich}-${r.aufgabe_index}`;
               if(r.erledigt) checksHeute[k]={person:r.person,uhrzeit:r.uhrzeit};
               else delete checksHeute[k];
             }
@@ -660,7 +661,7 @@ function startRealtime() {
             if(r.monat) { zuweisung[r.bereich]=r.person; }
           } else if(d.type==='DELETE') {
             const r = d.old_record;
-            if(r&&r.datum===HEUTE_STR) delete checksHeute[`${r.bereich}-${r.tageszeit}-${r.aufgabe_index}`];
+            if(r&&r.datum===HEUTE_STR) { const p=r.aufgabe_index?r.aufgabe_index.split('|'):[]; const dk=p.length===2?`${r.bereich}-${p[0]}-${p[1]}`:`${r.bereich}-${r.aufgabe_index}`; delete checksHeute[dk]; }
           }
           if(currentDetailBereich) { renderDetail(); renderTzTabs(); }
           renderMain();
