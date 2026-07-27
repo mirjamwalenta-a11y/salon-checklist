@@ -133,10 +133,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .toast.show { opacity: 1; }
 
 /* DRAG & DROP */
-.drag-handle { font-size: 20px; color: #C7C7CC; cursor: grab; padding: 0 10px 0 0; flex-shrink: 0; user-select: none; touch-action: none; }
-.drag-handle:active { cursor: grabbing; }
-.admin-row.dragging { opacity: 0.4; background: #F2F2F7; }
-.admin-row.drag-over { border-top: 2px solid #1C1C1E; }
+.btn-small.arrow { background: #F2F2F7; color: #1C1C1E; font-size: 16px; padding: 6px 10px; min-width: 36px; }
+.btn-small.arrow:disabled { opacity: 0.25; }
 .btn-small.blue { background: #E5F0FF; color: #0066CC; }
 .btn-small.green { background: #E5FFE8; color: #1A7A30; }
 .bereich-name-input { flex: 1; border: 1px solid #1C1C1E; border-radius: 8px; padding: 6px 10px; font-size: 15px; color: #1C1C1E; background: #fff; margin-right: 8px; }
@@ -589,19 +587,16 @@ function renderAdmin() {
       const aufgaben = b.aufgaben[tz.key]||[];
       const othTz = TAGESZEITEN.filter(t=>t.key!==tz.key).map(t=>`<option value="${t.key}">${t.label}</option>`).join('');
       html += `<div class="admin-section"><div class="admin-section-title">${b.name} – ${tz.label}</div>
-        <div class="drag-list" id="list-${key}-${tz.key}">`;
+`;
       aufgaben.forEach((a,i) => {
-        html += `<div class="admin-row" draggable="true"
-          ondragstart="dragStart(event,'${key}','${tz.key}',${i})"
-          ondragover="dragOver(event)"
-          ondragleave="dragLeave(event)"
-          ondrop="dragDrop(event,'${key}','${tz.key}',${i})"
-          ondragend="dragEnd(event)">
-          <span class="drag-handle">⠿</span>
+        const isFirst = i===0, isLast = i===aufgaben.length-1;
+        html += `<div class="admin-row">
           <div class="admin-row-label">${a}</div>
           <div class="admin-row-actions">
+            <button class="btn-small arrow" onclick="aufgabeHoch('${key}','${tz.key}',${i})" ${isFirst?'disabled':''}>↑</button>
+            <button class="btn-small arrow" onclick="aufgabeRunter('${key}','${tz.key}',${i})" ${isLast?'disabled':''}>↓</button>
             <select class="move-select" id="mv-${key}-${tz.key}-${i}">
-              <option value="">→ verschieben</option>
+              <option value="">→ wohin?</option>
               ${othTz}
             </select>
             <button class="btn-small blue" onclick="aufgabeVerschieben('${key}','${tz.key}',${i})">↗</button>
@@ -609,7 +604,7 @@ function renderAdmin() {
           </div>
         </div>`;
       });
-      html += `</div>
+      html += `
         <div class="add-form">
           <input class="admin-input" id="neu-${key}-${tz.key}" placeholder="Neue Aufgabe…" type="text"
             onkeydown="if(event.key==='Enter')aufgabeHinzufuegen('${key}','${tz.key}')">
@@ -652,32 +647,18 @@ function aufgabeVerschieben(key, fromTz, i) {
   showToast(`✓ Verschoben nach ${TAGESZEITEN.find(t=>t.key===toTz).label}`);
 }
 
-// Drag & Drop
-let dragSrc = null;
-function dragStart(e, key, tz, i) {
-  dragSrc = {key, tz, i};
-  e.currentTarget.classList.add('dragging');
-  e.dataTransfer.effectAllowed = 'move';
-}
-function dragOver(e) {
-  e.preventDefault();
-  e.currentTarget.classList.add('drag-over');
-  e.dataTransfer.dropEffect = 'move';
-}
-function dragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
-function dragDrop(e, key, tz, i) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('drag-over');
-  if(!dragSrc || (dragSrc.key===key && dragSrc.tz===tz && dragSrc.i===i)) return;
-  if(dragSrc.key!==key || dragSrc.tz!==tz) { showToast('Nur innerhalb derselben Liste verschieben'); return; }
+function aufgabeHoch(key, tz, i) {
+  if(i===0) return;
   const arr = BEREICHE[key].aufgaben[tz];
-  const [moved] = arr.splice(dragSrc.i, 1);
-  arr.splice(i, 0, moved);
-  dragSrc = null;
+  [arr[i-1], arr[i]] = [arr[i], arr[i-1]];
   renderAdmin();
-  showToast('✓ Reihenfolge geändert');
 }
-function dragEnd(e) { e.currentTarget.classList.remove('dragging'); }
+function aufgabeRunter(key, tz, i) {
+  const arr = BEREICHE[key].aufgaben[tz];
+  if(i>=arr.length-1) return;
+  [arr[i], arr[i+1]] = [arr[i+1], arr[i]];
+  renderAdmin();
+}
 
 async function zuweisungAendern(key, person) {
   if(!person) return;
