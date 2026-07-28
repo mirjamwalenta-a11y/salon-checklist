@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="A Great Hair Day">
-<title>A Great Hair Day – Verantwortung</title>
+<meta name="apple-mobile-web-app-title" content="Salon Walenta">
+<title>Salon Walenta – Verantwortung</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #F2F2F7; min-height: 100vh; width: 100%; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #F2F2F7; min-height: 100vh; max-width: 430px; margin: 0 auto; }
 
 .topbar { background: #1C1C1E; padding: env(safe-area-inset-top, 12px) 20px 14px; position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; }
 .topbar-left h1 { color: #fff; font-size: 20px; font-weight: 700; }
@@ -45,7 +45,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .info-box { background: #fff; border-radius: 12px; padding: 14px 16px; font-size: 13px; color: #3A3A3C; line-height: 1.6; margin-top: 4px; }
 
 /* DETAIL */
-.detail-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 100; flex-direction: column; width: 100%; }
+.detail-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 100; flex-direction: column; max-width: 430px; margin: 0 auto; }
 .detail-screen.open { display: flex; }
 .detail-topbar { background: #1C1C1E; padding: env(safe-area-inset-top, 12px) 20px 14px; flex-shrink: 0; }
 .back-btn { color: #8E8E93; font-size: 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 6px; }
@@ -82,7 +82,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .empty-state { text-align: center; padding: 40px 20px; color: #8E8E93; font-size: 14px; }
 
 /* MONTH */
-.month-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 100; flex-direction: column; width: 100%; overflow-y: auto; }
+.month-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 100; flex-direction: column; max-width: 430px; margin: 0 auto; overflow-y: auto; }
 .month-screen.open { display: flex; }
 .month-header-card { background: #fff; border-radius: 12px; padding: 18px 16px; margin-bottom: 16px; text-align: center; }
 .month-label-sm { font-size: 12px; color: #8E8E93; margin-bottom: 4px; }
@@ -95,7 +95,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .mc-role { font-size: 12px; color: #8E8E93; margin-top: 1px; }
 
 /* ADMIN */
-.admin-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 150; flex-direction: column; width: 100%; overflow-y: auto; }
+.admin-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 150; flex-direction: column; max-width: 430px; margin: 0 auto; overflow-y: auto; }
 .admin-screen.open { display: flex; }
 .admin-topbar { background: #1C1C1E; padding: env(safe-area-inset-top, 12px) 20px 14px; flex-shrink: 0; }
 .admin-content { padding: 16px; padding-bottom: 40px; }
@@ -113,7 +113,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .add-btn { background: #1C1C1E; color: #fff; border: none; border-radius: 8px; padding: 10px 14px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 
 /* TABS */
-.tabbar { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 1px solid #E5E5EA; display: flex; padding: 8px 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); z-index: 50; }
+.tabbar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: #fff; border-top: 1px solid #E5E5EA; display: flex; padding: 8px 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); z-index: 50; }
 .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; }
 .tab .ti { font-size: 22px; }
 .tab .tl { font-size: 10px; color: #8E8E93; font-weight: 500; }
@@ -122,7 +122,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 /* MODAL */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: flex-end; justify-content: center; }
 .modal-overlay.open { display: flex; }
-.modal-sheet { background: #F2F2F7; border-radius: 20px 20px 0 0; padding: 12px 20px; padding-bottom: max(32px, env(safe-area-inset-bottom)); width: 100%; }
+.modal-sheet { background: #F2F2F7; border-radius: 20px 20px 0 0; padding: 12px 20px; padding-bottom: max(32px, env(safe-area-inset-bottom)); width: 100%; max-width: 430px; }
 .modal-handle { width: 36px; height: 4px; background: #D1D1D6; border-radius: 2px; margin: 0 auto 16px; }
 .modal-title { font-size: 17px; font-weight: 700; color: #1C1C1E; margin-bottom: 14px; }
 .name-btn { display: block; width: 100%; background: #fff; border: none; border-radius: 12px; padding: 15px 16px; font-size: 16px; font-weight: 500; color: #1C1C1E; text-align: left; margin-bottom: 8px; cursor: pointer; }
@@ -131,15 +131,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 
 .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1C1C1E; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; z-index: 300; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
 .toast.show { opacity: 1; }
-
-/* DRAG & DROP */
-.btn-small.arrow { background: #F2F2F7; color: #1C1C1E; font-size: 16px; padding: 6px 10px; min-width: 36px; }
-.btn-small.arrow:disabled { opacity: 0.25; }
-.btn-small.blue { background: #E5F0FF; color: #0066CC; }
-.btn-small.green { background: #E5FFE8; color: #1A7A30; }
-.bereich-name-input { flex: 1; border: 1px solid #1C1C1E; border-radius: 8px; padding: 6px 10px; font-size: 15px; color: #1C1C1E; background: #fff; margin-right: 8px; }
-.move-select { border: 1px solid #E5E5EA; border-radius: 8px; padding: 4px 6px; font-size: 12px; color: #1C1C1E; background: #fff; margin-right: 6px; max-width: 110px; }
-.admin-row-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -147,7 +138,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 <div class="topbar">
   <div class="topbar-left">
     <h1>Heute</h1>
-    <div class="sub">A Great Hair Day</div>
+    <div class="sub">Friseursalon Walenta</div>
   </div>
   <div class="topbar-right">
     <div id="sync-dot" title="Verbinde…"></div>
@@ -370,13 +361,13 @@ async function ladeAlles() {
     zuweisung = {};
     zuw.forEach(z => { zuweisung[z.bereich] = z.person; });
 
-    const ch = await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&select=bereich,aufgabe_index,person,uhrzeit`);
+    const ch = await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&select=bereich,tageszeit,aufgabe_index,person,uhrzeit`);
     checksHeute = {};
-    ch.forEach(c => { const parts=c.aufgabe_index.split('|'); if(parts.length===2) checksHeute[`${c.bereich}-${parts[0]}-${parts[1]}`] = {person:c.person,uhrzeit:c.uhrzeit}; });
+    ch.forEach(c => { checksHeute[`${c.bereich}-${c.tageszeit}-${c.aufgabe_index}`] = {person:c.person,uhrzeit:c.uhrzeit}; });
 
-    const cg = await sbFetch(`salon_checks?datum=eq.${GESTERN_STR}&select=bereich,aufgabe_index,erledigt`);
+    const cg = await sbFetch(`salon_checks?datum=eq.${GESTERN_STR}&select=bereich,tageszeit,aufgabe_index,erledigt`);
     checksGestern = {};
-    cg.forEach(c => { if(c.erledigt) { const parts=c.aufgabe_index.split('|'); if(parts.length===2) checksGestern[`${c.bereich}-${parts[0]}-${parts[1]}`] = true; } });
+    cg.forEach(c => { if(c.erledigt) checksGestern[`${c.bereich}-${c.tageszeit}-${c.aufgabe_index}`] = true; });
 
     renderMain();
   } catch(e) {
@@ -519,7 +510,7 @@ async function selectName(name) {
   checksHeute[k] = {person:name,uhrzeit};
   renderDetail(); renderTzTabs();
   try {
-    await sbFetch('salon_checks',{method:'POST',prefer:'resolution=merge-duplicates',body:JSON.stringify({datum:HEUTE_STR,bereich,aufgabe_index:`${tz}|${index}`,person:name,uhrzeit,erledigt:true})});
+    await sbFetch('salon_checks',{method:'POST',prefer:'resolution=merge-duplicates',body:JSON.stringify({datum:HEUTE_STR,bereich,tageszeit:tz,aufgabe_index:index,person:name,uhrzeit,erledigt:true})});
     showToast(`✓ ${name}`);
   } catch(e) { delete checksHeute[k]; renderDetail(); showToast('⚠ Fehler'); }
 }
@@ -527,7 +518,7 @@ async function selectName(name) {
 async function uncheckeItem(bereich,tz,index) {
   const k = `${bereich}-${tz}-${index}`, prev = checksHeute[k];
   delete checksHeute[k]; renderDetail(); renderTzTabs();
-  try { await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&bereich=eq.${bereich}&aufgabe_index=eq.${tz}|${index}`,{method:'DELETE',prefer:''}); }
+  try { await sbFetch(`salon_checks?datum=eq.${HEUTE_STR}&bereich=eq.${bereich}&tageszeit=eq.${tz}&aufgabe_index=eq.${index}`,{method:'DELETE',prefer:''}); }
   catch(e) { checksHeute[k]=prev; renderDetail(); }
 }
 
@@ -557,17 +548,6 @@ function closeAdmin() { document.getElementById('admin-screen').classList.remove
 
 function renderAdmin() {
   let html = '';
-
-  // Bereiche umbenennen
-  html += `<div class="admin-section"><div class="admin-section-title">Bereiche umbenennen</div>`;
-  Object.entries(BEREICHE).forEach(([key,b]) => {
-    html += `<div class="admin-row">
-      <input class="bereich-name-input" id="bname-${key}" value="${b.name}" type="text">
-      <button class="btn-small green" onclick="bereichUmbenennen('${key}')">✓</button>
-    </div>`;
-  });
-  html += '</div>';
-
   // Monatszuweisung
   html += `<div class="admin-section"><div class="admin-section-title">Monatszuweisung – ${MONAT_ANZEIGE}</div>`;
   Object.entries(BEREICHE).forEach(([key,b]) => {
@@ -581,35 +561,19 @@ function renderAdmin() {
   });
   html += '</div>';
 
-  // Aufgaben pro Bereich und Tageszeit – mit Drag & Drop + Verschieben
+  // Aufgaben pro Bereich und Tageszeit
   Object.entries(BEREICHE).forEach(([key,b]) => {
     TAGESZEITEN.forEach(tz => {
       const aufgaben = b.aufgaben[tz.key]||[];
-      const othTz = TAGESZEITEN.filter(t=>t.key!==tz.key).map(t=>`<option value="${t.key}">${t.label}</option>`).join('');
-      html += `<div class="admin-section"><div class="admin-section-title">${b.name} – ${tz.label}</div>
-`;
+      html += `<div class="admin-section"><div class="admin-section-title">${b.name} – ${tz.label}</div>`;
       aufgaben.forEach((a,i) => {
-        const isFirst = i===0, isLast = i===aufgaben.length-1;
-        html += `<div class="admin-row">
-          <div class="admin-row-label">${a}</div>
-          <div class="admin-row-actions">
-            <button class="btn-small arrow" onclick="aufgabeHoch('${key}','${tz.key}',${i})" ${isFirst?'disabled':''}>↑</button>
-            <button class="btn-small arrow" onclick="aufgabeRunter('${key}','${tz.key}',${i})" ${isLast?'disabled':''}>↓</button>
-            <select class="move-select" id="mv-${key}-${tz.key}-${i}">
-              <option value="">→ wohin?</option>
-              ${othTz}
-            </select>
-            <button class="btn-small blue" onclick="aufgabeVerschieben('${key}','${tz.key}',${i})">↗</button>
-            <button class="btn-small red" onclick="aufgabeLoeschen('${key}','${tz.key}',${i})">✕</button>
-          </div>
-        </div>`;
+        html += `<div class="admin-row"><div class="admin-row-label">${a}</div>
+          <button class="btn-small red" onclick="aufgabeLoeschen('${key}','${tz.key}',${i})">Löschen</button></div>`;
       });
-      html += `
-        <div class="add-form">
-          <input class="admin-input" id="neu-${key}-${tz.key}" placeholder="Neue Aufgabe…" type="text"
-            onkeydown="if(event.key==='Enter')aufgabeHinzufuegen('${key}','${tz.key}')">
-          <button class="add-btn" onclick="aufgabeHinzufuegen('${key}','${tz.key}')">+</button>
-        </div></div>`;
+      html += `<div class="add-form">
+        <input class="admin-input" id="neu-${key}-${tz.key}" placeholder="Neue Aufgabe…" type="text">
+        <button class="add-btn" onclick="aufgabeHinzufuegen('${key}','${tz.key}')">+</button>
+      </div></div>`;
     });
   });
 
@@ -617,47 +581,14 @@ function renderAdmin() {
   html += '<div class="admin-section"><div class="admin-section-title">Team</div>';
   TEAM.forEach((name,i) => {
     html += `<div class="admin-row"><div class="admin-row-label">${name}</div>
-      <button class="btn-small red" onclick="teamEntfernen(${i})">✕</button></div>`;
+      <button class="btn-small red" onclick="teamEntfernen(${i})">Entfernen</button></div>`;
   });
   html += `<div class="add-form">
-    <input class="admin-input" id="neuer-name" placeholder="Name hinzufügen…" type="text"
-      onkeydown="if(event.key==='Enter')teamHinzufuegen()">
+    <input class="admin-input" id="neuer-name" placeholder="Name hinzufügen…" type="text">
     <button class="add-btn" onclick="teamHinzufuegen()">+</button>
   </div></div>`;
 
   document.getElementById('admin-content').innerHTML = html;
-}
-
-function bereichUmbenennen(key) {
-  const inp = document.getElementById(`bname-${key}`);
-  const val = inp.value.trim();
-  if(!val) return;
-  BEREICHE[key].name = val;
-  renderAdmin();
-  showToast(`✓ "${val}" gespeichert`);
-}
-
-function aufgabeVerschieben(key, fromTz, i) {
-  const sel = document.getElementById(`mv-${key}-${fromTz}-${i}`);
-  const toTz = sel.value;
-  if(!toTz) { showToast('Bitte Ziel wählen'); return; }
-  const aufgabe = BEREICHE[key].aufgaben[fromTz].splice(i, 1)[0];
-  BEREICHE[key].aufgaben[toTz].push(aufgabe);
-  renderAdmin();
-  showToast(`✓ Verschoben nach ${TAGESZEITEN.find(t=>t.key===toTz).label}`);
-}
-
-function aufgabeHoch(key, tz, i) {
-  if(i===0) return;
-  const arr = BEREICHE[key].aufgaben[tz];
-  [arr[i-1], arr[i]] = [arr[i], arr[i-1]];
-  renderAdmin();
-}
-function aufgabeRunter(key, tz, i) {
-  const arr = BEREICHE[key].aufgaben[tz];
-  if(i>=arr.length-1) return;
-  [arr[i], arr[i+1]] = [arr[i+1], arr[i]];
-  renderAdmin();
 }
 
 async function zuweisungAendern(key, person) {
@@ -721,8 +652,7 @@ function startRealtime() {
           if(d.type==='INSERT'||d.type==='UPDATE') {
             const r = d.record;
             if(r.datum===HEUTE_STR) {
-              const parts=r.aufgabe_index?r.aufgabe_index.split('|'):[];
-              const k = parts.length===2?`${r.bereich}-${parts[0]}-${parts[1]}`:`${r.bereich}-${r.aufgabe_index}`;
+              const k = `${r.bereich}-${r.tageszeit}-${r.aufgabe_index}`;
               if(r.erledigt) checksHeute[k]={person:r.person,uhrzeit:r.uhrzeit};
               else delete checksHeute[k];
             }
@@ -730,7 +660,7 @@ function startRealtime() {
             if(r.monat) { zuweisung[r.bereich]=r.person; }
           } else if(d.type==='DELETE') {
             const r = d.old_record;
-            if(r&&r.datum===HEUTE_STR) { const p=r.aufgabe_index?r.aufgabe_index.split('|'):[]; const dk=p.length===2?`${r.bereich}-${p[0]}-${p[1]}`:`${r.bereich}-${r.aufgabe_index}`; delete checksHeute[dk]; }
+            if(r&&r.datum===HEUTE_STR) delete checksHeute[`${r.bereich}-${r.tageszeit}-${r.aufgabe_index}`];
           }
           if(currentDetailBereich) { renderDetail(); renderTzTabs(); }
           renderMain();
