@@ -683,6 +683,74 @@ function zeigeSyncStatus(online) {
 
 ladeAlles();
 startRealtime();
+
+// ── WÖRNI: Offene Pflicht-Checklisten melden ──────────────────────────────
+const GHD_URL = 'https://lpuxvvfrrcnbuzafscyk.supabase.co';
+const GHD_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdXh2dmZycmNuYnV6YWZzY3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODIxNDcsImV4cCI6MjEwMDI1ODE0N30.6VZUmmXj_x3Q8J55s_tbOHcW5-U5OXllGoEBhypaVfI';
+const GHD_H = { "apikey": GHD_KEY, "Authorization": `Bearer ${GHD_KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" };
+
+async function woerniChecklistePruefen() {
+  try {
+    const jetzt = new Date();
+    const stunde = jetzt.getHours();
+    // Nur abends ab 17:00 Uhr prüfen
+    if (stunde < 17) return;
+
+    const tageszeiten = ['morgens','mittags','abends'];
+    const offeneBereiche = [];
+
+    Object.entries(BEREICHE).forEach(([bereichKey, bereich]) => {
+      tageszeiten.forEach(tz => {
+        const aufgaben = bereich.aufgaben[tz];
+        if (!aufgaben || aufgaben.length === 0) return;
+        const offen = aufgaben.filter((_, idx) => !checksHeute[`${bereichKey}-${tz}-${idx}`]);
+        if (offen.length > 0) {
+          offeneBereiche.push(`${bereich.name} (${tz}: ${offen.length} offen)`);
+        }
+      });
+    });
+
+    if (offeneBereiche.length === 0) return; // alles erledigt
+
+    const SIGNAL_KEY = `checkliste-offen-${HEUTE_STR}`;
+    const titel = `Checkliste heute nicht vollständig – ${offeneBereiche.length} Bereich(e) offen`;
+    const naechster_schritt = `Checklisten-App öffnen und prüfen: ${offeneBereiche.slice(0,2).join(', ')}`;
+
+    // Prüfen ob Aufgabe bereits existiert
+    const check = await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt&select=id`, { headers: GHD_H });
+    const existing = await check.json();
+
+    if (Array.isArray(existing) && existing.length > 0) {
+      await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt`, {
+        method: 'PATCH', headers: GHD_H,
+        body: JSON.stringify({ titel, naechster_schritt, geaendert_am: new Date().toISOString() })
+      });
+    } else {
+      await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben`, {
+        method: 'POST', headers: GHD_H,
+        body: JSON.stringify({
+          typ: 'checkliste',
+          titel,
+          naechster_schritt,
+          verantwortlich: 'mirjam',
+          prioritaet: 'hoch',
+          status: 'neu',
+          app_kontext: 'checklisten',
+          fach_kontext: 'tagescheck',
+          signal_key: SIGNAL_KEY,
+          erstellt_von: 'system',
+          erstellt_am: new Date().toISOString()
+        })
+      });
+    }
+  } catch(e) { console.warn('Wörni Checklisten-Signal fehlgeschlagen:', e); }
+}
+
+// Alle 30 Minuten prüfen (passt zum bestehenden Reload-Intervall)
+setInterval(woerniChecklistePruefen, 30 * 60 * 1000);
+// Einmal beim Start prüfen (falls App abends geöffnet wird)
+woerniChecklistePruefen();
+// ─────────────────────────────────────────────────────────────────────────────
 </script>
 </body>
 </html>
