@@ -906,24 +906,6 @@ async function ekSaveFixEdit(id) {
     showToast('✓ Gespeichert');
   } catch(e) { it.text=oldText; it.menge=oldMenge; it.mindeststand=oldMin; ekRender(); showToast('⚠ Fehler'); }
 }
-  const inp = document.getElementById(`ek-edit-menge-${id}`); if(!inp) return;
-  const menge = inp.value.trim();
-  const it = ekItems[ekAktiveListeId]?.find(i=>i.id===id); if(!it) return;
-  if(it.menge===menge) return;
-  const old=it.menge; it.menge=menge;
-  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({menge:menge||null})}); }
-  catch(e) { it.menge=old; showToast('⚠ Fehler'); }
-}
-
-async function ekSaveMinEdit(id) {
-  const inp = document.getElementById(`ek-edit-min-${id}`); if(!inp) return;
-  const mindeststand = inp.value.trim();
-  const it = ekItems[ekAktiveListeId]?.find(i=>i.id===id); if(!it) return;
-  if(it.mindeststand===mindeststand) return;
-  const old=it.mindeststand; it.mindeststand=mindeststand;
-  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({mindeststand:mindeststand||null})}); }
-  catch(e) { it.mindeststand=old; showToast('⚠ Fehler'); }
-}
 
 async function ekToggleFixItem(id) {
   const it=ekItems[ekAktiveListeId].find(i=>i.id===id); if(!it) return;
