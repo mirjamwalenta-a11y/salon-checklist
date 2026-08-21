@@ -123,7 +123,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .add-btn { background: #1C1C1E; color: #fff; border: none; border-radius: 8px; padding: 10px 14px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 
 /* EINKAUF */
-.einkauf-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 100; flex-direction: column; max-width: 430px; margin: 0 auto; }
+.einkauf-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 100; flex-direction: column; max-width: 430px; margin: 0 auto; pointer-events: none; }
+.einkauf-screen.open { pointer-events: all; }
 .einkauf-screen.open { display: flex; }
 .einkauf-topbar { background: #1C1C1E; padding: env(safe-area-inset-top, 12px) 20px 14px; flex-shrink: 0; }
 .einkauf-topbar h2 { color: #fff; font-size: 18px; font-weight: 700; }
@@ -238,6 +239,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
   <div class="einkauf-content" id="einkauf-content">
     <div class="loading">Wird geladen…</div>
   </div>
+
 </div>
 
 <!-- TABS -->
@@ -247,23 +249,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
   <div class="tab" id="tab-einkauf" onclick="showEinkauf()"><div class="ti">🛒</div><div class="tl">Einkauf</div></div>
 </div>
 
-<!-- MODAL EINKAUF: neue Liste / umbenennen -->
-<div class="modal-overlay" id="ek-modal-liste" onclick="ekCloseModalListe()">
+<!-- EINKAUF MODALS (body level) -->
+<div class="modal-overlay" id="ek-modal-liste" style="z-index:400;" onclick="ekCloseModalListe()">
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="modal-title" id="ek-modal-liste-titel">Neue Liste</div>
-    <input class="name-btn" style="border:1px solid #E5E5EA;border-radius:12px;padding:13px 16px;font-size:16px;margin-bottom:10px;width:100%;outline:none;" id="ek-modal-liste-input" placeholder="z.B. Apotheke" type="text">
-    <button class="name-btn" style="background:#1C1C1E;color:#fff;font-weight:600;text-align:center;" id="ek-modal-liste-ok" onclick="ekSpeicherListe()">Erstellen</button>
+    <input style="border:1px solid #E5E5EA;border-radius:12px;padding:13px 16px;font-size:16px;margin-bottom:10px;width:100%;outline:none;background:#fff;display:block;box-sizing:border-box;" id="ek-modal-liste-input" placeholder="z.B. Apotheke" type="text">
+    <button style="display:block;width:100%;background:#1C1C1E;color:#fff;font-weight:600;text-align:center;border:none;border-radius:12px;padding:15px;font-size:16px;margin-bottom:8px;cursor:pointer;" id="ek-modal-liste-ok" onclick="ekSpeicherListe()">Erstellen</button>
     <button class="cancel-btn" onclick="ekCloseModalListe()">Abbrechen</button>
   </div>
 </div>
 
-<!-- MODAL EINKAUF: Liste löschen -->
-<div class="modal-overlay" id="ek-modal-delete" onclick="ekCloseModalDelete()">
+<div class="modal-overlay" id="ek-modal-delete" style="z-index:400;" onclick="ekCloseModalDelete()">
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="modal-title" id="ek-modal-delete-titel">Liste löschen?</div>
-    <button class="name-btn" style="background:#FF3B30;color:#fff;font-weight:600;text-align:center;" onclick="ekListeLoeschen()">Ja, löschen</button>
+    <button style="display:block;width:100%;background:#FF3B30;color:#fff;font-weight:600;text-align:center;border:none;border-radius:12px;padding:15px;font-size:16px;margin-bottom:8px;cursor:pointer;" onclick="ekListeLoeschen()">Ja, löschen</button>
     <button class="cancel-btn" onclick="ekCloseModalDelete()">Abbrechen</button>
   </div>
 </div>
