@@ -44,6 +44,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .prog-fill.empty { background: #E5E5EA; }
 .prog-text { font-size: 13px; color: #8E8E93; white-space: nowrap; }
 .arrow { color: #C7C7CC; font-size: 20px; }
+.tz-mini-row { display: flex; gap: 6px; margin-top: 10px; }
+.tz-mini { flex: 1; background: #F2F2F7; border-radius: 8px; padding: 6px 8px; text-align: center; }
+.tz-mini-label { font-size: 10px; color: #8E8E93; font-weight: 600; }
+.tz-mini-count { font-size: 13px; font-weight: 700; color: #1C1C1E; margin-top: 1px; }
+.tz-mini-count.all-done { color: #34C759; }
+.tz-mini-count.partial { color: #FF9500; }
+.tz-mini-count.none { color: #C7C7CC; }
 
 .info-box { background: #fff; border-radius: 12px; padding: 14px 16px; font-size: 13px; color: #3A3A3C; line-height: 1.6; margin-top: 4px; }
 
@@ -115,6 +122,40 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .admin-input { flex: 1; border: 1px solid #E5E5EA; border-radius: 8px; padding: 10px 12px; font-size: 15px; color: #1C1C1E; background: #fff; }
 .add-btn { background: #1C1C1E; color: #fff; border: none; border-radius: 8px; padding: 10px 14px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 
+/* EINKAUF */
+.einkauf-screen { display: none; position: fixed; inset: 0; background: #F2F2F7; z-index: 100; flex-direction: column; max-width: 430px; margin: 0 auto; }
+.einkauf-screen.open { display: flex; }
+.einkauf-topbar { background: #1C1C1E; padding: env(safe-area-inset-top, 12px) 20px 14px; flex-shrink: 0; }
+.einkauf-topbar h2 { color: #fff; font-size: 18px; font-weight: 700; }
+.einkauf-topbar .sub { color: #8E8E93; font-size: 13px; margin-top: 2px; }
+.einkauf-content { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 90px; }
+.ek-listen-tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 2px; }
+.ek-listen-tab { flex-shrink: 0; background: #fff; border: none; border-radius: 20px; padding: 8px 16px; font-size: 14px; font-weight: 600; color: #8E8E93; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+.ek-listen-tab.active { background: #1C1C1E; color: #fff; }
+.ek-listen-tab .ek-badge { background: rgba(142,142,147,0.2); color: #8E8E93; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; }
+.ek-listen-tab.active .ek-badge { background: rgba(255,255,255,0.2); color: #fff; }
+.ek-add-list-btn { background: #fff; border: 2px dashed #D1D1D6; border-radius: 20px; padding: 8px 16px; font-size: 14px; font-weight: 600; color: #8E8E93; cursor: pointer; flex-shrink: 0; }
+.ek-input-card { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 16px; display: flex; gap: 8px; }
+.ek-eingabe { flex: 1; border: none; outline: none; font-size: 16px; color: #1C1C1E; background: transparent; }
+.ek-eingabe::placeholder { color: #C7C7CC; }
+.ek-add-btn { background: #1C1C1E; color: #fff; border: none; border-radius: 10px; padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.ek-stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 2px; }
+.ek-stats-text { font-size: 12px; color: #8E8E93; font-weight: 500; }
+.ek-clear-btn { background: none; border: none; font-size: 12px; color: #FF3B30; font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
+.ek-list-actions { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px; }
+.ek-list-action-btn { background: #fff; border: none; border-radius: 10px; padding: 7px 14px; font-size: 13px; font-weight: 600; color: #8E8E93; cursor: pointer; }
+.ek-list-action-btn.red { color: #FF3B30; }
+.ek-item { display: flex; align-items: center; padding: 13px 16px; border-bottom: 1px solid #F2F2F7; min-height: 52px; }
+.ek-item:last-child { border-bottom: none; }
+.ek-cb { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #D1D1D6; flex-shrink: 0; margin-right: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.ek-cb.checked { background: #34C759; border-color: #34C759; }
+.ek-cb.checked::after { content: ''; width: 6px; height: 11px; border: 2.5px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
+.ek-item-text { flex: 1; font-size: 15px; color: #1C1C1E; line-height: 1.3; }
+.ek-item-text.done { color: #C7C7CC; text-decoration: line-through; }
+.ek-item-edit { flex: 1; border: none; outline: none; font-size: 15px; color: #1C1C1E; background: #F2F2F7; border-radius: 8px; padding: 6px 10px; }
+.ek-del-btn { background: none; border: none; color: #C7C7CC; font-size: 20px; cursor: pointer; padding: 4px 0 4px 10px; flex-shrink: 0; line-height: 1; }
+.ek-done-label { font-size: 11px; font-weight: 600; color: #8E8E93; text-transform: uppercase; letter-spacing: 0.8px; margin: 16px 0 8px 4px; }
+
 /* TABS */
 .tabbar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: #fff; border-top: 1px solid #E5E5EA; display: flex; padding: 8px 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); z-index: 50; }
 .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; }
@@ -141,7 +182,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 <div class="topbar">
   <div class="topbar-left">
     <h1>Heute</h1>
-    <div class="sub">Friseursalon Walenta</div>
+    <div class="sub">Mirjam Walenta – A great hair day</div>
   </div>
   <div class="topbar-right">
     <div id="sync-dot" title="Verbinde…"></div>
@@ -182,10 +223,43 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
   <div class="admin-content" id="admin-content"></div>
 </div>
 
+<!-- EINKAUF SCREEN -->
+<div class="einkauf-screen" id="einkauf-screen">
+  <div class="einkauf-topbar">
+    <h2>Einkauf</h2>
+    <div class="sub">Mirjam Walenta – A great hair day</div>
+  </div>
+  <div class="einkauf-content" id="einkauf-content">
+    <div class="loading">Wird geladen…</div>
+  </div>
+</div>
+
 <!-- TABS -->
 <div class="tabbar">
   <div class="tab active" id="tab-heute" onclick="showMain()"><div class="ti">☑️</div><div class="tl">Heute</div></div>
   <div class="tab" id="tab-monat" onclick="showMonth()"><div class="ti">👤</div><div class="tl">Monat</div></div>
+  <div class="tab" id="tab-einkauf" onclick="showEinkauf()"><div class="ti">🛒</div><div class="tl">Einkauf</div></div>
+</div>
+
+<!-- MODAL EINKAUF: neue Liste / umbenennen -->
+<div class="modal-overlay" id="ek-modal-liste" onclick="ekCloseModalListe()">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="ek-modal-liste-titel">Neue Liste</div>
+    <input class="name-btn" style="border:1px solid #E5E5EA;border-radius:12px;padding:13px 16px;font-size:16px;margin-bottom:10px;width:100%;outline:none;" id="ek-modal-liste-input" placeholder="z.B. Apotheke" type="text">
+    <button class="name-btn" style="background:#1C1C1E;color:#fff;font-weight:600;text-align:center;" id="ek-modal-liste-ok" onclick="ekSpeicherListe()">Erstellen</button>
+    <button class="cancel-btn" onclick="ekCloseModalListe()">Abbrechen</button>
+  </div>
+</div>
+
+<!-- MODAL EINKAUF: Liste löschen -->
+<div class="modal-overlay" id="ek-modal-delete" onclick="ekCloseModalDelete()">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="ek-modal-delete-titel">Liste löschen?</div>
+    <button class="name-btn" style="background:#FF3B30;color:#fff;font-weight:600;text-align:center;" onclick="ekListeLoeschen()">Ja, löschen</button>
+    <button class="cancel-btn" onclick="ekCloseModalDelete()">Abbrechen</button>
+  </div>
 </div>
 
 <!-- MODAL -->
@@ -406,6 +480,20 @@ function renderMain() {
     const pct = total > 0 ? Math.round((done/total)*100) : 0;
     const fc = pct===100?'done':pct>0?'partial':'empty';
     const person = zuweisung[key]||'–';
+
+    // Mini-Zeilen für Morgens / Untertags / Abends
+    const tzMini = ['morgens','untertags','abends'].map(tzKey => {
+      const tzLabel = tzKey==='morgens'?'Morgens':tzKey==='untertags'?'Untertags':'Abends';
+      const aufgaben = b.aufgaben[tzKey]||[];
+      const tzDone = aufgaben.filter((_,i)=>checksHeute[`${key}-${tzKey}-${i}`]).length;
+      const tzTotal = aufgaben.length;
+      const cls = tzTotal===0?'none':tzDone===tzTotal?'all-done':tzDone>0?'partial':'none';
+      return `<div class="tz-mini" onclick="event.stopPropagation();openDetailTz('${key}','${tzKey}')">
+        <div class="tz-mini-label">${tzLabel}</div>
+        <div class="tz-mini-count ${cls}">${tzDone}/${tzTotal}</div>
+      </div>`;
+    }).join('');
+
     html += `
       <div class="area-card" onclick="openDetail('${key}')">
         <div class="card-top"><div class="area-name">${b.name}</div><div class="resp-pill">${person}</div></div>
@@ -414,12 +502,25 @@ function renderMain() {
           <div class="prog-text">${done} von ${total}</div>
           <div class="arrow">›</div>
         </div>
+        <div class="tz-mini-row">${tzMini}</div>
       </div>`;
   });
 
   html += `<div class="slabel" style="margin-top:4px;">Hinweis</div>
     <div class="info-box">Morgencheck: erste anwesende Person.<br>Abendcheck: letzte Person vor Salonschluss.</div>`;
   document.getElementById('main-content').innerHTML = html;
+}
+
+function openDetailTz(key, tz) {
+  currentDetailBereich = key;
+  currentTageszeit = tz;
+  const b = BEREICHE[key];
+  const person = zuweisung[key]||'–';
+  document.getElementById('detail-title').textContent = b.name;
+  document.getElementById('detail-resp').innerHTML = `Verantwortlich: <span>${person}</span>`;
+  document.getElementById('detail-screen').classList.add('open');
+  renderTzTabs();
+  renderDetail();
 }
 
 function openDetail(key) {
@@ -529,6 +630,7 @@ function cancelModal() { document.getElementById('modal').classList.remove('open
 
 function showMonth() {
   setTab('monat');
+  document.getElementById('einkauf-screen').classList.remove('open');
   document.getElementById('month-screen').classList.add('open');
   let html = `<div class="month-header-card"><div class="month-label-sm">Aktuelle Zuweisung</div><div class="month-name">${MONAT_ANZEIGE}</div></div><div class="slabel">Verantwortliche Personen</div>`;
   Object.entries(BEREICHE).forEach(([key,b]) => {
@@ -538,7 +640,7 @@ function showMonth() {
   document.getElementById('month-content').innerHTML = html;
 }
 function closeMonth() { document.getElementById('month-screen').classList.remove('open'); setTab('heute'); }
-function showMain() { setTab('heute'); document.getElementById('month-screen').classList.remove('open'); }
+function showMain() { setTab('heute'); document.getElementById('month-screen').classList.remove('open'); document.getElementById('einkauf-screen').classList.remove('open'); }
 
 function toggleAdmin() {
   const s = document.getElementById('admin-screen');
@@ -683,6 +785,231 @@ function zeigeSyncStatus(online) {
 
 ladeAlles();
 startRealtime();
+
+// ══════════════════════════════════════════
+// EINKAUF
+// ══════════════════════════════════════════
+const GHD_URL2 = SUPABASE_URL;
+const GHD_KEY2 = SUPABASE_KEY;
+
+let ekListen = [];
+let ekItems = {};
+let ekAktiveListeId = null;
+let ekModalListeEditId = null;
+let ekModalDeleteId = null;
+let ekEditItemId = null;
+
+async function ekSbFetch(path, opts={}) {
+  const res = await fetch(`${GHD_URL2}/rest/v1/${path}`, {
+    headers: { 'apikey': GHD_KEY2, 'Authorization': `Bearer ${GHD_KEY2}`, 'Content-Type': 'application/json', 'Prefer': opts.prefer||'return=representation', ...opts.headers },
+    ...opts
+  });
+  const text = await res.text();
+  if (!res.ok) throw new Error(text);
+  return text ? JSON.parse(text) : [];
+}
+
+async function ekLadeAlles() {
+  try {
+    const l = await ekSbFetch('einkauf_listen?order=reihenfolge.asc');
+    if (l.length === 0) {
+      const defaults = ['Supermarkt','Drogerie','Großhandel'];
+      for (let i = 0; i < defaults.length; i++) {
+        const neu = await ekSbFetch('einkauf_listen', { method:'POST', body:JSON.stringify({name:defaults[i],reihenfolge:i}) });
+        ekListen.push(neu[0]);
+      }
+    } else {
+      ekListen = l;
+    }
+    const allItems = await ekSbFetch('einkauf_items?order=reihenfolge.asc');
+    ekItems = {};
+    ekListen.forEach(l => ekItems[l.id] = []);
+    allItems.forEach(it => { if (ekItems[it.listen_id]) ekItems[it.listen_id].push(it); });
+    if (!ekAktiveListeId && ekListen.length > 0) ekAktiveListeId = ekListen[0].id;
+    ekRender();
+  } catch(e) {
+    document.getElementById('einkauf-content').innerHTML = `<div class="loading">⚠️ Fehler: ${e.message}</div>`;
+  }
+}
+
+function ekRender() {
+  const mc = document.getElementById('einkauf-content');
+  if (!ekListen.length) { mc.innerHTML = `<div class="empty-state"><div style="font-size:36px;margin-bottom:8px">🛒</div>Noch keine Listen.</div>`; return; }
+
+  let tabsHtml = ekListen.map(l => {
+    const itms = ekItems[l.id]||[];
+    const offen = itms.filter(i=>!i.erledigt).length;
+    const active = l.id===ekAktiveListeId?' active':'';
+    return `<button class="ek-listen-tab${active}" onclick="ekSwitchListe(${l.id})">${l.name}${offen>0?`<span class="ek-badge">${offen}</span>`:''}</button>`;
+  }).join('');
+  tabsHtml += `<button class="ek-add-list-btn" onclick="ekOpenModalNeueListe()">+ Liste</button>`;
+
+  const aktive = ekListen.find(l=>l.id===ekAktiveListeId);
+  if (!aktive) { ekAktiveListeId=ekListen[0].id; ekRender(); return; }
+
+  const listeItems = ekItems[ekAktiveListeId]||[];
+  const offenItems = listeItems.filter(i=>!i.erledigt);
+  const erledigtItems = listeItems.filter(i=>i.erledigt);
+  const done = erledigtItems.length, total = listeItems.length;
+
+  const listActions = `<div class="ek-list-actions">
+    <button class="ek-list-action-btn" onclick="ekOpenModalUmbenennen(${aktive.id},'${aktive.name.replace(/'/g,"\\'")}')">✏️ Umbenennen</button>
+    <button class="ek-list-action-btn red" onclick="ekOpenModalDelete(${aktive.id},'${aktive.name.replace(/'/g,"\\'")}')">🗑 Löschen</button>
+  </div>`;
+
+  const statsHtml = total>0 ? `<div class="ek-stats-row">
+    <span class="ek-stats-text">${done} von ${total} erledigt</span>
+    ${done>0?`<button class="ek-clear-btn" onclick="ekErledigteLoeschen()">Erledigte entfernen</button>`:''}
+  </div>` : '';
+
+  let itemsHtml = '';
+  if (offenItems.length===0 && erledigtItems.length===0) {
+    itemsHtml = `<div class="empty-state"><div style="font-size:36px;margin-bottom:8px">✅</div>Liste ist leer.<br>Füge oben ein Produkt hinzu.</div>`;
+  } else {
+    if (offenItems.length>0) itemsHtml += `<div class="checklist-card">${offenItems.map(it=>ekRenderItem(it)).join('')}</div>`;
+    if (erledigtItems.length>0) itemsHtml += `<div class="ek-done-label">Erledigt</div><div class="checklist-card">${erledigtItems.map(it=>ekRenderItem(it)).join('')}</div>`;
+  }
+
+  mc.innerHTML = `
+    <div class="ek-listen-tabs">${tabsHtml}</div>
+    ${listActions}
+    <div class="ek-input-card">
+      <input class="ek-eingabe" id="ek-neu-input" placeholder="Produkt hinzufügen…" type="text" onkeydown="if(event.key==='Enter')ekAddItem()">
+      <button class="ek-add-btn" onclick="ekAddItem()">Hinzufügen</button>
+    </div>
+    ${statsHtml}${itemsHtml}`;
+}
+
+function ekRenderItem(it) {
+  if (ekEditItemId===it.id) {
+    return `<div class="ek-item">
+      <div class="ek-cb${it.erledigt?' checked':''}" onclick="ekToggleItem(${it.id})"></div>
+      <input class="ek-item-edit" id="ek-edit-${it.id}" value="${it.text.replace(/"/g,'&quot;')}"
+        onkeydown="if(event.key==='Enter')ekSaveEdit(${it.id});if(event.key==='Escape')ekCancelEdit();"
+        onblur="ekSaveEdit(${it.id})">
+      <button class="ek-del-btn" onclick="ekDeleteItem(${it.id})">×</button>
+    </div>`;
+  }
+  return `<div class="ek-item">
+    <div class="ek-cb${it.erledigt?' checked':''}" onclick="ekToggleItem(${it.id})"></div>
+    <div class="ek-item-text${it.erledigt?' done':''}" ondblclick="ekStartEdit(${it.id})">${it.text}</div>
+    <button class="ek-del-btn" onclick="ekDeleteItem(${it.id})">×</button>
+  </div>`;
+}
+
+function ekSwitchListe(id) { ekAktiveListeId=id; ekEditItemId=null; ekRender(); }
+
+async function ekAddItem() {
+  const inp = document.getElementById('ek-neu-input');
+  const text = inp.value.trim(); if(!text) return;
+  inp.value='';
+  const tmp = {id:'tmp-'+Date.now(), text, erledigt:false, listen_id:ekAktiveListeId, reihenfolge:0};
+  if(!ekItems[ekAktiveListeId]) ekItems[ekAktiveListeId]=[];
+  ekItems[ekAktiveListeId].unshift(tmp);
+  ekRender();
+  document.getElementById('ek-neu-input')?.focus();
+  try {
+    const res = await ekSbFetch('einkauf_items',{method:'POST',body:JSON.stringify({text,erledigt:false,listen_id:ekAktiveListeId,reihenfolge:0})});
+    const saved=res[0];
+    ekItems[ekAktiveListeId]=ekItems[ekAktiveListeId].map(i=>i.id===tmp.id?saved:i);
+    ekRender();
+  } catch(e) { ekItems[ekAktiveListeId]=ekItems[ekAktiveListeId].filter(i=>i.id!==tmp.id); ekRender(); showToast('⚠ Fehler'); }
+}
+
+async function ekToggleItem(id) {
+  const it=ekItems[ekAktiveListeId].find(i=>i.id===id); if(!it) return;
+  const prev=it.erledigt; it.erledigt=!prev; ekRender();
+  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({erledigt:!prev})}); }
+  catch(e) { it.erledigt=prev; ekRender(); showToast('⚠ Fehler'); }
+}
+
+function ekStartEdit(id) { ekEditItemId=id; ekRender(); setTimeout(()=>document.getElementById(`ek-edit-${id}`)?.focus(),50); }
+async function ekSaveEdit(id) {
+  if(ekEditItemId!==id) return;
+  const inp=document.getElementById(`ek-edit-${id}`); if(!inp) return;
+  const text=inp.value.trim(); ekEditItemId=null;
+  if(!text) { ekRender(); return; }
+  const it=ekItems[ekAktiveListeId].find(i=>i.id===id);
+  if(!it||it.text===text) { ekRender(); return; }
+  const old=it.text; it.text=text; ekRender();
+  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({text})}); }
+  catch(e) { it.text=old; ekRender(); showToast('⚠ Fehler'); }
+}
+function ekCancelEdit() { ekEditItemId=null; ekRender(); }
+
+async function ekDeleteItem(id) {
+  const liste=ekItems[ekAktiveListeId];
+  const idx=liste.findIndex(i=>i.id===id); if(idx===-1) return;
+  const [removed]=liste.splice(idx,1); ekRender();
+  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'DELETE',prefer:''}); showToast('Entfernt'); }
+  catch(e) { liste.splice(idx,0,removed); ekRender(); showToast('⚠ Fehler'); }
+}
+
+async function ekErledigteLoeschen() {
+  const done=(ekItems[ekAktiveListeId]||[]).filter(i=>i.erledigt); if(!done.length) return;
+  ekItems[ekAktiveListeId]=ekItems[ekAktiveListeId].filter(i=>!i.erledigt); ekRender();
+  try { const ids=done.map(i=>i.id).join(','); await ekSbFetch(`einkauf_items?id=in.(${ids})`,{method:'DELETE',prefer:''}); showToast(`${done.length} entfernt`); }
+  catch(e) { ekItems[ekAktiveListeId].push(...done); ekRender(); showToast('⚠ Fehler'); }
+}
+
+function ekOpenModalNeueListe() {
+  ekModalListeEditId=null;
+  document.getElementById('ek-modal-liste-titel').textContent='Neue Liste';
+  document.getElementById('ek-modal-liste-input').value='';
+  document.getElementById('ek-modal-liste-ok').textContent='Erstellen';
+  document.getElementById('ek-modal-liste').classList.add('open');
+  setTimeout(()=>document.getElementById('ek-modal-liste-input').focus(),100);
+}
+function ekOpenModalUmbenennen(id,name) {
+  ekModalListeEditId=id;
+  document.getElementById('ek-modal-liste-titel').textContent='Liste umbenennen';
+  document.getElementById('ek-modal-liste-input').value=name;
+  document.getElementById('ek-modal-liste-ok').textContent='Speichern';
+  document.getElementById('ek-modal-liste').classList.add('open');
+  setTimeout(()=>{ const inp=document.getElementById('ek-modal-liste-input'); inp.focus(); inp.select(); },100);
+}
+function ekCloseModalListe() { document.getElementById('ek-modal-liste').classList.remove('open'); }
+async function ekSpeicherListe() {
+  const name=document.getElementById('ek-modal-liste-input').value.trim(); if(!name) return;
+  ekCloseModalListe();
+  if(ekModalListeEditId) {
+    const l=ekListen.find(l=>l.id===ekModalListeEditId); if(!l) return;
+    const old=l.name; l.name=name; ekRender();
+    try { await ekSbFetch(`einkauf_listen?id=eq.${ekModalListeEditId}`,{method:'PATCH',body:JSON.stringify({name})}); }
+    catch(e) { l.name=old; ekRender(); showToast('⚠ Fehler'); }
+  } else {
+    try {
+      const res=await ekSbFetch('einkauf_listen',{method:'POST',body:JSON.stringify({name,reihenfolge:ekListen.length})});
+      const neu=res[0]; ekListen.push(neu); ekItems[neu.id]=[]; ekAktiveListeId=neu.id; ekRender(); showToast(`✓ ${name} erstellt`);
+    } catch(e) { showToast('⚠ Fehler'); }
+  }
+}
+function ekOpenModalDelete(id,name) {
+  ekModalDeleteId=id;
+  document.getElementById('ek-modal-delete-titel').textContent=`„${name}" löschen?`;
+  document.getElementById('ek-modal-delete').classList.add('open');
+}
+function ekCloseModalDelete() { document.getElementById('ek-modal-delete').classList.remove('open'); }
+async function ekListeLoeschen() {
+  const id=ekModalDeleteId; ekCloseModalDelete();
+  const idx=ekListen.findIndex(l=>l.id===id); if(idx===-1) return;
+  const [removed]=ekListen.splice(idx,1);
+  const removedItems=ekItems[id]||[]; delete ekItems[id];
+  if(ekAktiveListeId===id) ekAktiveListeId=ekListen[0]?.id||null;
+  ekRender();
+  try {
+    await ekSbFetch(`einkauf_items?listen_id=eq.${id}`,{method:'DELETE',prefer:''});
+    await ekSbFetch(`einkauf_listen?id=eq.${id}`,{method:'DELETE',prefer:''});
+    showToast('Liste gelöscht');
+  } catch(e) { ekListen.splice(idx,0,removed); ekItems[id]=removedItems; ekAktiveListeId=id; ekRender(); showToast('⚠ Fehler'); }
+}
+
+function showEinkauf() {
+  setTab('einkauf');
+  document.getElementById('month-screen').classList.remove('open');
+  document.getElementById('einkauf-screen').classList.add('open');
+  if(ekListen.length===0) ekLadeAlles(); else ekRender();
+}
 
 // ── WÖRNI: Offene Pflicht-Checklisten melden ──────────────────────────────
 const GHD_URL = 'https://lpuxvvfrrcnbuzafscyk.supabase.co';
