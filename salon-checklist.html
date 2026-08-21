@@ -157,6 +157,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .ek-item-edit { flex: 1; border: none; outline: none; font-size: 15px; color: #1C1C1E; background: #F2F2F7; border-radius: 8px; padding: 6px 10px; }
 .ek-del-btn { background: none; border: none; color: #C7C7CC; font-size: 20px; cursor: pointer; padding: 4px 0 4px 10px; flex-shrink: 0; line-height: 1; }
 .ek-done-label { font-size: 11px; font-weight: 600; color: #8E8E93; text-transform: uppercase; letter-spacing: 0.8px; margin: 16px 0 8px 4px; }
+.ek-item-meta { font-size: 11px; color: #8E8E93; margin-top: 3px; display: flex; gap: 10px; }
+.ek-meta-badge { background: #F2F2F7; border-radius: 6px; padding: 2px 7px; font-size: 11px; font-weight: 600; color: #3A3A3C; }
+.ek-meta-badge.warn { background: #FFF3CD; color: #856404; }
+.ek-extra-fields { display: flex; gap: 6px; padding: 4px 0 2px; }
+.ek-extra-input { flex: 1; border: 1px solid #E5E5EA; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #1C1C1E; background: #fff; outline: none; min-width: 0; }
+.ek-extra-input::placeholder { color: #C7C7CC; }
 .ek-modus-tabs { display: flex; gap: 0; margin-bottom: 16px; background: #E5E5EA; border-radius: 12px; padding: 3px; }
 .ek-modus-tab { flex: 1; border: none; border-radius: 10px; padding: 9px 8px; font-size: 13px; font-weight: 600; color: #8E8E93; cursor: pointer; background: transparent; transition: all 0.15s; }
 .ek-modus-tab.active { background: #fff; color: #1C1C1E; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
@@ -830,36 +836,76 @@ async function ekLadeAlles() {
 
 
 function ekRenderFixItem(it) {
+  const mengeBadge = it.menge ? `<span class="ek-meta-badge">🛒 ${it.menge}</span>` : '';
+  const minBadge = it.mindeststand ? `<span class="ek-meta-badge warn">⚠ Min: ${it.mindeststand}</span>` : '';
+  const metaRow = (it.menge || it.mindeststand) ? `<div class="ek-item-meta">${mengeBadge}${minBadge}</div>` : '';
+
   if (ekEditItemId===it.id) {
-    return `<div class="ek-item">
-      <div class="ek-cb${it.erledigt?' checked':''}" onclick="ekToggleFixItem(${it.id})"></div>
-      <input class="ek-item-edit" id="ek-edit-${it.id}" value="${it.text.replace(/"/g,'&quot;')}"
-        onkeydown="if(event.key==='Enter')ekSaveEdit(${it.id},'fix');if(event.key==='Escape')ekCancelEdit();"
-        onblur="ekSaveEdit(${it.id},'fix')">
-      <button class="ek-del-btn" onclick="ekDeleteFixItem(${it.id})">×</button>
+    return `<div class="ek-item" style="flex-direction:column;align-items:stretch;gap:6px;padding:12px 16px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="ek-cb${it.erledigt?' checked':''}" onclick="ekToggleFixItem(${it.id})"></div>
+        <input class="ek-item-edit" id="ek-edit-${it.id}" value="${it.text.replace(/"/g,'&quot;')}"
+          placeholder="Artikelname"
+          onkeydown="if(event.key==='Enter')ekSaveEdit(${it.id},'fix');if(event.key==='Escape')ekCancelEdit();"
+          onblur="ekSaveEdit(${it.id},'fix')" style="flex:1;">
+        <button class="ek-del-btn" onclick="ekDeleteFixItem(${it.id})">×</button>
+      </div>
+      <div class="ek-extra-fields" style="padding-left:40px;">
+        <input class="ek-extra-input" id="ek-edit-menge-${it.id}" value="${(it.menge||'').replace(/"/g,'&quot;')}" placeholder="Menge (z.B. 2 Stück)"
+          onblur="ekSaveMengeEdit(${it.id})">
+        <input class="ek-extra-input" id="ek-edit-min-${it.id}" value="${(it.mindeststand||'').replace(/"/g,'&quot;')}" placeholder="Mindeststand (z.B. 1)"
+          onblur="ekSaveMinEdit(${it.id})">
+      </div>
     </div>`;
   }
-  return `<div class="ek-item">
-    <div class="ek-cb${it.erledigt?' checked':''}" onclick="ekToggleFixItem(${it.id})"></div>
-    <div class="ek-item-text${it.erledigt?' done':''}" ondblclick="ekStartEdit(${it.id})">${it.text}</div>
-    <button class="ek-del-btn" onclick="ekDeleteFixItem(${it.id})">×</button>
+  return `<div class="ek-item" style="${metaRow?'align-items:flex-start;padding:12px 16px;':''}" onclick="ekStartEdit(${it.id})">
+    <div class="ek-cb${it.erledigt?' checked':''}" onclick="event.stopPropagation();ekToggleFixItem(${it.id})" style="${metaRow?'margin-top:2px;':''}"></div>
+    <div class="item-body" style="flex:1;">
+      <div class="ek-item-text${it.erledigt?' done':''}">${it.text}</div>
+      ${metaRow}
+    </div>
+    <button class="ek-del-btn" onclick="event.stopPropagation();ekDeleteFixItem(${it.id})">×</button>
   </div>`;
 }
 
 async function ekAddFixItem() {
   const inp = document.getElementById('ek-neu-input');
   const text = inp.value.trim(); if(!text) return;
+  const menge = (document.getElementById('ek-neu-menge')?.value||'').trim();
+  const mindeststand = (document.getElementById('ek-neu-min')?.value||'').trim();
   inp.value='';
-  const tmp = {id:'tmp-'+Date.now(), text, erledigt:false, listen_id:ekAktiveListeId, reihenfolge:0};
+  if(document.getElementById('ek-neu-menge')) document.getElementById('ek-neu-menge').value='';
+  if(document.getElementById('ek-neu-min')) document.getElementById('ek-neu-min').value='';
+  const tmp = {id:'tmp-'+Date.now(), text, menge, mindeststand, erledigt:false, listen_id:ekAktiveListeId, reihenfolge:0};
   if(!ekItems[ekAktiveListeId]) ekItems[ekAktiveListeId]=[];
   ekItems[ekAktiveListeId].unshift(tmp);
   ekRender();
   try {
-    const res = await ekSbFetch('einkauf_items',{method:'POST',body:JSON.stringify({text,erledigt:false,listen_id:ekAktiveListeId,reihenfolge:0})});
+    const res = await ekSbFetch('einkauf_items',{method:'POST',body:JSON.stringify({text,menge:menge||null,mindeststand:mindeststand||null,erledigt:false,listen_id:ekAktiveListeId,reihenfolge:0})});
     const saved=res[0];
     ekItems[ekAktiveListeId]=ekItems[ekAktiveListeId].map(i=>i.id===tmp.id?saved:i);
     ekRender();
   } catch(e) { ekItems[ekAktiveListeId]=ekItems[ekAktiveListeId].filter(i=>i.id!==tmp.id); ekRender(); showToast('⚠ Fehler'); }
+}
+
+async function ekSaveMengeEdit(id) {
+  const inp = document.getElementById(`ek-edit-menge-${id}`); if(!inp) return;
+  const menge = inp.value.trim();
+  const it = ekItems[ekAktiveListeId]?.find(i=>i.id===id); if(!it) return;
+  if(it.menge===menge) return;
+  const old=it.menge; it.menge=menge;
+  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({menge:menge||null})}); }
+  catch(e) { it.menge=old; showToast('⚠ Fehler'); }
+}
+
+async function ekSaveMinEdit(id) {
+  const inp = document.getElementById(`ek-edit-min-${id}`); if(!inp) return;
+  const mindeststand = inp.value.trim();
+  const it = ekItems[ekAktiveListeId]?.find(i=>i.id===id); if(!it) return;
+  if(it.mindeststand===mindeststand) return;
+  const old=it.mindeststand; it.mindeststand=mindeststand;
+  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({mindeststand:mindeststand||null})}); }
+  catch(e) { it.mindeststand=old; showToast('⚠ Fehler'); }
 }
 
 async function ekToggleFixItem(id) {
@@ -1041,9 +1087,15 @@ function ekRenderFix() {
   mc.innerHTML = `
     <div class="ek-listen-tabs">${tabsHtml}</div>
     ${listActions}
-    <div class="ek-input-card">
-      <input class="ek-eingabe" id="ek-neu-input" placeholder="Pflichtartikel hinzufügen…" type="text" onkeydown="if(event.key==='Enter')ekAddFixItem()">
-      <button class="ek-add-btn" onclick="ekAddFixItem()">+</button>
+    <div class="ek-input-card" style="flex-direction:column;gap:8px;">
+      <div style="display:flex;gap:8px;">
+        <input class="ek-eingabe" id="ek-neu-input" placeholder="Pflichtartikel hinzufügen…" type="text" onkeydown="if(event.key==='Enter')ekAddFixItem()">
+        <button class="ek-add-btn" onclick="ekAddFixItem()">+</button>
+      </div>
+      <div class="ek-extra-fields">
+        <input class="ek-extra-input" id="ek-neu-menge" placeholder="🛒 Menge (z.B. 2 Stück)" type="text" onkeydown="if(event.key==='Enter')ekAddFixItem()">
+        <input class="ek-extra-input" id="ek-neu-min" placeholder="⚠ Mindeststand (z.B. 1)" type="text" onkeydown="if(event.key==='Enter')ekAddFixItem()">
+      </div>
     </div>
     ${statsHtml}${itemsHtml}${erledigtBtn}`;
 }
@@ -1092,10 +1144,16 @@ async function ekSaveEdit(id, typ) {
   const text=inp.value.trim(); ekEditItemId=null;
   if(!text) { ekRender(); return; }
   if(typ==='fix') {
-    const it=ekItems[ekAktiveListeId]?.find(i=>i.id===id); if(!it||it.text===text){ekRender();return;}
-    const old=it.text; it.text=text; ekRender();
-    try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({text})}); }
-    catch(e) { it.text=old; ekRender(); showToast('⚠ Fehler'); }
+    const it=ekItems[ekAktiveListeId]?.find(i=>i.id===id); if(!it){ekRender();return;}
+    const mengeInp = document.getElementById(`ek-edit-menge-${id}`);
+    const minInp = document.getElementById(`ek-edit-min-${id}`);
+    const menge = mengeInp ? mengeInp.value.trim() : it.menge;
+    const mindeststand = minInp ? minInp.value.trim() : it.mindeststand;
+    if(it.text===text && it.menge===(menge||null||'') && it.mindeststand===(mindeststand||null||'')){ekRender();return;}
+    const oldText=it.text, oldMenge=it.menge, oldMin=it.mindeststand;
+    it.text=text; it.menge=menge||null; it.mindeststand=mindeststand||null; ekRender();
+    try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({text,menge:menge||null,mindeststand:mindeststand||null})}); showToast('✓ Gespeichert'); }
+    catch(e) { it.text=oldText; it.menge=oldMenge; it.mindeststand=oldMin; ekRender(); showToast('⚠ Fehler'); }
   } else {
     const it=ekFlexItems.find(i=>i.id===id); if(!it||it.text===text){ekRender();return;}
     const old=it.text; it.text=text; ekRender();
