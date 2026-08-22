@@ -1300,6 +1300,69 @@ async function woerniChecklistePruefen() {
 setInterval(woerniChecklistePruefen, 30 * 60 * 1000);
 // Einmal beim Start prüfen (falls App abends geöffnet wird)
 woerniChecklistePruefen();
+// ── WÖRNI: Einkaufsliste Mindestmenge ──
+async function woerniEinkaufPruefen() {
+  try {
+    // Alle Items mit Mindestmenge die noch nicht erledigt sind sammeln
+    const fehlendeArtikel = [];
+    Object.values(ekItems).forEach(liste => {
+      liste.forEach(it => {
+        if (it.mindeststand && !it.erledigt) {
+          fehlendeArtikel.push(it.text);
+        }
+      });
+    });
+
+    const SIGNAL_KEY = 'einkauf-mindestmenge-offen';
+
+    if (fehlendeArtikel.length === 0) {
+      // Aufgabe als erledigt markieren falls vorhanden
+      await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt`, {
+        method: 'PATCH', headers: GHD_H,
+        body: JSON.stringify({ status: 'erledigt', erledigt_am: new Date().toISOString(), erledigt_von: 'system', geaendert_am: new Date().toISOString() })
+      });
+      return;
+    }
+
+    const titel = `Einkauf: ${fehlendeArtikel.length} Artikel unter Mindestmenge`;
+    const naechster_schritt = `Einkaufsliste öffnen → fehlt: ${fehlendeArtikel.slice(0,3).join(', ')}${fehlendeArtikel.length > 3 ? ` +${fehlendeArtikel.length-3} weitere` : ''}`;
+
+    const check = await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt&select=id`, { headers: GHD_H });
+    const existing = await check.json();
+
+    if (Array.isArray(existing) && existing.length > 0) {
+      await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt`, {
+        method: 'PATCH', headers: GHD_H,
+        body: JSON.stringify({ titel, naechster_schritt, geaendert_am: new Date().toISOString() })
+      });
+    } else {
+      await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben`, {
+        method: 'POST', headers: GHD_H,
+        body: JSON.stringify({
+          typ: 'einkauf',
+          titel,
+          naechster_schritt,
+          verantwortlich: 'mirjam',
+          prioritaet: 'diese-woche',
+          status: 'neu',
+          app_kontext: 'checklisten',
+          fach_kontext: 'einkauf',
+          signal_key: SIGNAL_KEY,
+          erstellt_von: 'system',
+          erstellt_am: new Date().toISOString()
+        })
+      });
+    }
+  } catch(e) { console.warn('Wörni Einkauf-Signal fehlgeschlagen:', e); }
+}
+
+// Beim Laden der Einkaufsliste prüfen
+const _origEkLaden = typeof ekLaden === 'function' ? ekLaden : null;
+
+// Einkauf prüfen wenn Tab geöffnet wird
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(woerniEinkaufPruefen, 3000); // kurz warten bis ekItems geladen
+});
 // ─────────────────────────────────────────────────────────────────────────────
 </script>
 
