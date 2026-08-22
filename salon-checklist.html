@@ -845,27 +845,26 @@ function ekRenderFixItem(it) {
       <div style="display:flex;align-items:center;gap:8px;">
         <div class="ek-cb${it.erledigt?' checked':''}" onclick="ekToggleFixItem(${it.id})"></div>
         <input class="ek-item-edit" id="ek-edit-${it.id}" value="${it.text.replace(/"/g,'&quot;')}"
-          placeholder="Artikelname" style="flex:1;">
+          placeholder="Artikelname"
+          onkeydown="if(event.key==='Enter')ekSaveEdit(${it.id},'fix');if(event.key==='Escape')ekCancelEdit();"
+          onblur="ekSaveEdit(${it.id},'fix')" style="flex:1;">
         <button class="ek-del-btn" onclick="ekDeleteFixItem(${it.id})">×</button>
       </div>
       <div class="ek-extra-fields" style="padding-left:40px;">
-        <input class="ek-extra-input" id="ek-edit-menge-${it.id}" value="${(it.menge||'').replace(/"/g,'&quot;')}" placeholder="🛒 Menge (z.B. 2 Stück)">
-        <input class="ek-extra-input" id="ek-edit-min-${it.id}" value="${(it.mindeststand||'').replace(/"/g,'&quot;')}" placeholder="⚠ Mindeststand (z.B. 1)">
-      </div>
-      <div style="padding-left:40px;display:flex;gap:8px;">
-        <button onclick="ekSaveFixEdit(${it.id})" style="flex:1;background:#1C1C1E;color:#fff;border:none;border-radius:10px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;">✓ Speichern</button>
-        <button onclick="ekCancelEdit()" style="background:#E5E5EA;color:#1C1C1E;border:none;border-radius:10px;padding:10px 14px;font-size:14px;cursor:pointer;">Abbrechen</button>
+        <input class="ek-extra-input" id="ek-edit-menge-${it.id}" value="${(it.menge||'').replace(/"/g,'&quot;')}" placeholder="Menge (z.B. 2 Stück)"
+          onblur="ekSaveMengeEdit(${it.id})">
+        <input class="ek-extra-input" id="ek-edit-min-${it.id}" value="${(it.mindeststand||'').replace(/"/g,'&quot;')}" placeholder="Mindeststand (z.B. 1)"
+          onblur="ekSaveMinEdit(${it.id})">
       </div>
     </div>`;
   }
-  return `<div class="ek-item" style="${metaRow?'align-items:flex-start;padding:12px 16px;':''}">
-    <div class="ek-cb${it.erledigt?' checked':''}" onclick="ekToggleFixItem(${it.id})" style="${metaRow?'margin-top:2px;':''}"></div>
+  return `<div class="ek-item" style="${metaRow?'align-items:flex-start;padding:12px 16px;':''}" onclick="ekStartEdit(${it.id})">
+    <div class="ek-cb${it.erledigt?' checked':''}" onclick="event.stopPropagation();ekToggleFixItem(${it.id})" style="${metaRow?'margin-top:2px;':''}"></div>
     <div class="item-body" style="flex:1;">
       <div class="ek-item-text${it.erledigt?' done':''}">${it.text}</div>
       ${metaRow}
     </div>
-    <button onclick="ekStartEdit(${it.id})" style="background:none;border:none;color:#8E8E93;font-size:18px;cursor:pointer;padding:4px 6px;">✏️</button>
-    <button class="ek-del-btn" onclick="ekDeleteFixItem(${it.id})">×</button>
+    <button class="ek-del-btn" onclick="event.stopPropagation();ekDeleteFixItem(${it.id})">×</button>
   </div>`;
 }
 
@@ -889,22 +888,24 @@ async function ekAddFixItem() {
   } catch(e) { ekItems[ekAktiveListeId]=ekItems[ekAktiveListeId].filter(i=>i.id!==tmp.id); ekRender(); showToast('⚠ Fehler'); }
 }
 
-async function ekSaveFixEdit(id) {
-  const textInp = document.getElementById(`ek-edit-${id}`);
-  const mengeInp = document.getElementById(`ek-edit-menge-${id}`);
-  const minInp = document.getElementById(`ek-edit-min-${id}`);
-  if(!textInp) return;
-  const text = textInp.value.trim(); if(!text) return;
-  const menge = (mengeInp?.value||'').trim();
-  const mindeststand = (minInp?.value||'').trim();
+async function ekSaveMengeEdit(id) {
+  const inp = document.getElementById(`ek-edit-menge-${id}`); if(!inp) return;
+  const menge = inp.value.trim();
   const it = ekItems[ekAktiveListeId]?.find(i=>i.id===id); if(!it) return;
-  const oldText=it.text, oldMenge=it.menge, oldMin=it.mindeststand;
-  it.text=text; it.menge=menge||null; it.mindeststand=mindeststand||null;
-  ekEditItemId=null; ekRender();
-  try {
-    await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({text,menge:menge||null,mindeststand:mindeststand||null})});
-    showToast('✓ Gespeichert');
-  } catch(e) { it.text=oldText; it.menge=oldMenge; it.mindeststand=oldMin; ekRender(); showToast('⚠ Fehler'); }
+  if(it.menge===menge) return;
+  const old=it.menge; it.menge=menge;
+  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({menge:menge||null})}); }
+  catch(e) { it.menge=old; showToast('⚠ Fehler'); }
+}
+
+async function ekSaveMinEdit(id) {
+  const inp = document.getElementById(`ek-edit-min-${id}`); if(!inp) return;
+  const mindeststand = inp.value.trim();
+  const it = ekItems[ekAktiveListeId]?.find(i=>i.id===id); if(!it) return;
+  if(it.mindeststand===mindeststand) return;
+  const old=it.mindeststand; it.mindeststand=mindeststand;
+  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({mindeststand:mindeststand||null})}); }
+  catch(e) { it.mindeststand=old; showToast('⚠ Fehler'); }
 }
 
 async function ekToggleFixItem(id) {
@@ -1034,6 +1035,7 @@ function ekRenderFix() {
     const badge = total>0 ? `<span class="ek-badge">${offen}/${total}</span>` : '';
     return `<button class="ek-listen-tab${active}" onclick="ekSwitchListe(${l.id})">${l.name}${badge}</button>`;
   }).join('');
+  tabsHtml = `<button class="ek-listen-tab${ekAktiveListeId==='notiz'?' active':''}" onclick="ekZeigeNotiz()" style="flex-shrink:0;">🎤 Notiz</button>` + tabsHtml;
   tabsHtml += `<button class="ek-add-list-btn" onclick="ekOpenModalNeueListe()">+ Liste</button>`;
 
   const aktive = ekListen.find(l=>l.id===ekAktiveListeId);
@@ -1299,6 +1301,112 @@ setInterval(woerniChecklistePruefen, 30 * 60 * 1000);
 // Einmal beim Start prüfen (falls App abends geöffnet wird)
 woerniChecklistePruefen();
 // ─────────────────────────────────────────────────────────────────────────────
+</script>
+
+<script>
+// ── Notiz-Tab ──
+var ekNotizItems = JSON.parse(localStorage.getItem('ek-notiz') || '[]');
+
+function ekSaveNotiz() {
+  localStorage.setItem('ek-notiz', JSON.stringify(ekNotizItems));
+}
+
+function ekZeigeNotiz() {
+  ekAktiveListeId = 'notiz';
+  const mc = document.getElementById('einkauf-content');
+  if (!mc) return;
+  ekRenderNotiz(mc);
+}
+
+function ekRenderNotiz(mc) {
+  const items = ekNotizItems;
+  const itemsHtml = items.length === 0
+    ? '<div class="empty-state"><div style="font-size:36px;margin-bottom:8px">🎤</div>Noch keine Notizen.<br>Sprich oder tippe etwas ein.</div>'
+    : items.map((it, i) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #F2F2F7;">
+          <input type="checkbox" ${it.done?'checked':''} onchange="ekNotizToggle(${i})" style="width:20px;height:20px;cursor:pointer;accent-color:#1C1C1E;">
+          <span style="flex:1;font-size:15px;${it.done?'text-decoration:line-through;color:#8E8E93;':'color:#1C1C1E;'}">${it.text}</span>
+          <button onclick="ekNotizDelete(${i})" style="background:none;border:none;font-size:18px;cursor:pointer;color:#C0392B;">×</button>
+        </div>`).join('');
+
+  mc.innerHTML = `
+    <div class="ek-listen-tabs">
+      ${ekListen.map(l => {
+        const active = l.id===ekAktiveListeId?' active':'';
+        return '<button class="ek-listen-tab'+active+'" onclick="ekSwitchListe('+l.id+')">'+l.name+'</button>';
+      }).join('')}
+      <button class="ek-listen-tab active" style="flex-shrink:0;">🎤 Notiz</button>
+      <button class="ek-add-list-btn" onclick="ekOpenModalNeueListe()">+ Liste</button>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:12px;margin-bottom:16px;display:flex;gap:8px;">
+      <input id="ek-notiz-input" placeholder="Notiz eingeben…" type="text"
+        style="flex:1;border:1px solid #E5E5EA;border-radius:10px;padding:10px 12px;font-size:15px;outline:none;min-width:0;"
+        onkeydown="if(event.key==='Enter')ekNotizAdd()">
+      <button onclick="ekNotizMikro()" id="ek-notiz-mikro-btn"
+        style="background:#F2F2F7;border:none;border-radius:10px;padding:8px 12px;font-size:18px;cursor:pointer;flex-shrink:0;">🎤</button>
+      <button onclick="ekNotizAdd()"
+        style="background:#1C1C1E;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">+</button>
+    </div>
+    <div class="checklist-card" style="${items.length?'':'border:none;background:none;box-shadow:none;'}">${itemsHtml}</div>
+    ${items.some(i=>i.done) ? '<div style="padding:8px 0;"><button onclick="ekNotizClearDone()" style="background:#FFE5E5;color:#C0392B;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;width:100%;">✓ Erledigte löschen</button></div>' : ''}
+  `;
+}
+
+function ekNotizAdd() {
+  var input = document.getElementById('ek-notiz-input');
+  if (!input || !input.value.trim()) return;
+  ekNotizItems.push({text: input.value.trim(), done: false});
+  ekSaveNotiz();
+  input.value = '';
+  ekRenderNotiz(document.getElementById('einkauf-content'));
+}
+
+function ekNotizToggle(i) {
+  ekNotizItems[i].done = !ekNotizItems[i].done;
+  ekSaveNotiz();
+  ekRenderNotiz(document.getElementById('einkauf-content'));
+}
+
+function ekNotizDelete(i) {
+  ekNotizItems.splice(i, 1);
+  ekSaveNotiz();
+  ekRenderNotiz(document.getElementById('einkauf-content'));
+}
+
+function ekNotizClearDone() {
+  ekNotizItems = ekNotizItems.filter(i => !i.done);
+  ekSaveNotiz();
+  ekRenderNotiz(document.getElementById('einkauf-content'));
+}
+
+function ekNotizMikro() {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Mikrofon nicht verfügbar'); return; }
+  var btn = document.getElementById('ek-notiz-mikro-btn');
+  btn.textContent = '🔴';
+  btn.style.background = '#FFE5E5';
+  var erk = new SR();
+  erk.lang = 'de-AT';
+  erk.continuous = false;
+  erk.interimResults = false;
+  erk.onresult = function(e) {
+    var text = e.results[0][0].transcript;
+    ekNotizItems.push({text: text, done: false});
+    ekSaveNotiz();
+    btn.textContent = '🎤';
+    btn.style.background = '#F2F2F7';
+    ekRenderNotiz(document.getElementById('einkauf-content'));
+  };
+  erk.onend = function() {
+    btn.textContent = '🎤';
+    btn.style.background = '#F2F2F7';
+  };
+  erk.onerror = function() {
+    btn.textContent = '🎤';
+    btn.style.background = '#F2F2F7';
+  };
+  erk.start();
+}
 </script>
 </body>
 </html>
