@@ -1235,8 +1235,8 @@ function showEinkauf() {
 }
 
 // ── WÖRNI: Offene Pflicht-Checklisten melden ──────────────────────────────
-const GHD_URL = 'https://wrxlaltgtgkdomklgrlj.supabase.co';
-const GHD_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyeGxhbHRndGdrZG9ta2xncmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyNDYwMzYsImV4cCI6MjA5OTgyMjAzNn0.Bw8ch-EJb_cLYTwxHdpjUJWgoCjje3Jc32pB0yiBS8g';
+const GHD_URL = 'https://lpuxvvfrrcnbuzafscyk.supabase.co';
+const GHD_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdXh2dmZycmNuYnV6YWZzY3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODIxNDcsImV4cCI6MjEwMDI1ODE0N30.6VZUmmXj_x3Q8J55s_tbOHcW5-U5OXllGoEBhypaVfI';
 const GHD_H = { "apikey": GHD_KEY, "Authorization": `Bearer ${GHD_KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" };
 
 async function woerniChecklistePruefen() {
@@ -1261,6 +1261,15 @@ async function woerniChecklistePruefen() {
     });
 
     if (offeneBereiche.length === 0) return; // alles erledigt
+
+    // GHD OS: Ereignis in zentrale Tabelle schreiben
+    await ghd_ereignisSchreiben(
+      'Checklisten',
+      'checkliste_offen',
+      `Checkliste nicht vollständig – ${offeneBereiche.length} Bereich(e) offen`,
+      offeneBereiche.length >= 3 ? 'heute' : 'diese-woche',
+      { bereiche: offeneBereiche, datum: HEUTE_STR }
+    );
 
     const SIGNAL_KEY = `checkliste-offen-${HEUTE_STR}`;
     const titel = `Checkliste heute nicht vollständig – ${offeneBereiche.length} Bereich(e) offen`;
@@ -1296,6 +1305,28 @@ async function woerniChecklistePruefen() {
   } catch(e) { console.warn('Wörni Checklisten-Signal fehlgeschlagen:', e); }
 }
 
+// ── GHD OS: Ereignis in zentrale ghd_ereignisse-Tabelle schreiben ──
+// Supabase-Projekt: wrxlaltgtgkdomklgrlj (= Wörni / GHD OS)
+const GHD_OS_URL = 'https://wrxlaltgtgkdomklgrlj.supabase.co';
+const GHD_OS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyeGxhbHRndGdrZG9ta2xncmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyNDYwMzYsImV4cCI6MjA5OTgyMjAzNn0.Bw8ch-EJb_cLYTwxHdpjUJWgoCjje3Jc32pB0yiBS8g';
+
+async function ghd_ereignisSchreiben(app, typ, titel, prioritaet, payload) {
+  try {
+    await fetch(`${GHD_OS_URL}/rest/v1/ghd_ereignisse`, {
+      method: 'POST',
+      headers: {
+        'apikey': GHD_OS_KEY,
+        'Authorization': `Bearer ${GHD_OS_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ app, typ, titel, prioritaet, payload: payload || null })
+    });
+  } catch(e) {
+    console.warn('ghd_ereignis fehlgeschlagen:', e);
+  }
+}
+
 // Alle 30 Minuten prüfen (passt zum bestehenden Reload-Intervall)
 setInterval(woerniChecklistePruefen, 30 * 60 * 1000);
 // Einmal beim Start prüfen (falls App abends geöffnet wird)
@@ -1326,6 +1357,15 @@ async function woerniEinkaufPruefen() {
 
     const titel = `Einkauf: ${fehlendeArtikel.length} Artikel unter Mindestmenge`;
     const naechster_schritt = `Einkaufsliste öffnen → fehlt: ${fehlendeArtikel.slice(0,3).join(', ')}${fehlendeArtikel.length > 3 ? ` +${fehlendeArtikel.length-3} weitere` : ''}`;
+
+    // GHD OS: Ereignis in zentrale Tabelle schreiben
+    await ghd_ereignisSchreiben(
+      'Checklisten',
+      'einkauf_mindestmenge',
+      titel,
+      'diese-woche',
+      { artikel: fehlendeArtikel, naechster_schritt }
+    );
 
     const check = await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt&select=id`, { headers: GHD_H });
     const existing = await check.json();
