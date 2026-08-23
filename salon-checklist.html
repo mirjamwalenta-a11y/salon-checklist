@@ -1312,19 +1312,17 @@ const GHD_OS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 
 async function ghd_ereignisSchreiben(app, typ, titel, prioritaet, payload) {
   try {
-    await fetch(`${GHD_OS_URL}/rest/v1/ghd_ereignisse`, {
-      method: 'POST',
-      headers: {
-        'apikey': GHD_OS_KEY,
-        'Authorization': `Bearer ${GHD_OS_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({ app, typ, titel, prioritaet, payload: payload || null })
-    });
-  } catch(e) {
-    console.warn('ghd_ereignis fehlgeschlagen:', e);
-  }
+    const _h = { 'apikey': GHD_OS_KEY, 'Authorization': `Bearer ${GHD_OS_KEY}`, 'Content-Type': 'application/json' };
+    const _r = await fetch(`${GHD_OS_URL}/rest/v1/ghd_ereignisse?app=eq.${encodeURIComponent(app)}&typ=eq.${encodeURIComponent(typ)}&gelesen=eq.false&select=id`, { headers: _h });
+    const _ex = await _r.json();
+    if (Array.isArray(_ex) && _ex.length > 0) {
+      await fetch(`${GHD_OS_URL}/rest/v1/ghd_ereignisse?app=eq.${encodeURIComponent(app)}&typ=eq.${encodeURIComponent(typ)}&gelesen=eq.false`,
+        { method: 'PATCH', headers: { ..._h, 'Prefer': 'return=minimal' }, body: JSON.stringify({ titel, prioritaet, erstellt_am: new Date().toISOString(), payload: payload || null }) });
+    } else {
+      await fetch(`${GHD_OS_URL}/rest/v1/ghd_ereignisse`,
+        { method: 'POST', headers: { ..._h, 'Prefer': 'return=minimal' }, body: JSON.stringify({ app, typ, titel, prioritaet, payload: payload || null, gelesen: false }) });
+    }
+  } catch(e) { console.warn('ghd_ereignis fehlgeschlagen:', e); }
 }
 
 // Alle 30 Minuten prüfen (passt zum bestehenden Reload-Intervall)
