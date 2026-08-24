@@ -794,6 +794,7 @@ let ekAktiveListeId = null;
 let ekModalListeEditId = null;
 let ekModalDeleteId = null;
 let ekEditItemId = null;
+let ekEditMengeId = null;
 
 async function ekSbFetch(path, opts={}) {
   const res = await fetch(`${GHD_URL2}/rest/v1/${path}`, {
@@ -858,12 +859,29 @@ function ekRenderFixItem(it) {
       </div>
     </div>`;
   }
-  return `<div class="ek-item" style="${metaRow?'align-items:flex-start;padding:12px 16px;':''}" onclick="ekStartEdit(${it.id})">
+  // Menge-Edit direkt anzeigen wenn ekEditMengeId === it.id
+  const mengeEditRow = ekEditMengeId===it.id ? `
+    <div class="ek-extra-fields" style="padding-left:0;margin-top:6px;display:flex;gap:6px;">
+      <input class="ek-extra-input" id="ek-menge-${it.id}" value="${(it.menge||'').replace(/"/g,'&quot;')}"
+        placeholder="Menge (z.B. 2 Stück)"
+        onblur="ekSaveMengeInline(${it.id})"
+        onkeydown="if(event.key==='Enter')ekSaveMengeInline(${it.id});if(event.key==='Escape'){ekEditMengeId=null;ekRender();}"
+        style="flex:1;">
+      <input class="ek-extra-input" id="ek-min-${it.id}" value="${(it.mindeststand||'').replace(/"/g,'&quot;')}"
+        placeholder="Min (z.B. 1)"
+        onblur="ekSaveMinInline(${it.id})"
+        onkeydown="if(event.key==='Enter')ekSaveMinInline(${it.id});if(event.key==='Escape'){ekEditMengeId=null;ekRender();}"
+        style="flex:1;">
+    </div>` : '';
+
+  return `<div class="ek-item" style="${metaRow||ekEditMengeId===it.id?'align-items:flex-start;padding:12px 16px;':''}">
     <div class="ek-cb${it.erledigt?' checked':''}" onclick="event.stopPropagation();ekToggleFixItem(${it.id})" style="${metaRow?'margin-top:2px;':''}"></div>
     <div class="item-body" style="flex:1;">
-      <div class="ek-item-text${it.erledigt?' done':''}">${it.text}</div>
+      <div class="ek-item-text${it.erledigt?' done':''}" onclick="ekStartEdit(${it.id})">${it.text}</div>
       ${metaRow}
+      ${mengeEditRow}
     </div>
+    <button class="ek-del-btn" title="Menge bearbeiten" onclick="event.stopPropagation();ekToggleMengeEdit(${it.id})" style="font-size:14px;opacity:0.5;margin-right:2px;">✏️</button>
     <button class="ek-del-btn" onclick="event.stopPropagation();ekDeleteFixItem(${it.id})">×</button>
   </div>`;
 }
@@ -1136,7 +1154,7 @@ function ekRenderFlex() {
 }
 
 function ekSetModus(m) { ekModus=m; ekRender(); }
-function ekSwitchListe(id) { ekAktiveListeId=id; ekEditItemId=null; ekRenderFix(); }
+function ekSwitchListe(id) { ekAktiveListeId=id; ekEditItemId=null; ekEditMengeId=null; ekRenderFix(); }
 
 function ekStartEdit(id) { ekEditItemId=id; ekRender(); setTimeout(()=>document.getElementById(`ek-edit-${id}`)?.focus(),50); }
 async function ekSaveEdit(id, typ) {
@@ -1163,6 +1181,34 @@ async function ekSaveEdit(id, typ) {
   }
 }
 function ekCancelEdit() { ekEditItemId=null; ekRender(); }
+
+function ekToggleMengeEdit(id) {
+  ekEditMengeId = ekEditMengeId===id ? null : id;
+  ekRender();
+  if (ekEditMengeId===id) {
+    setTimeout(() => document.getElementById(`ek-menge-${id}`)?.focus(), 50);
+  }
+}
+
+async function ekSaveMengeInline(id) {
+  const inp = document.getElementById(`ek-menge-${id}`); if(!inp) return;
+  const menge = inp.value.trim();
+  const it = ekFixItems.find(x=>x.id===id); if(!it) return;
+  if (it.menge === menge) return;
+  const old = it.menge; it.menge = menge;
+  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({menge:menge||null})}); }
+  catch(e) { it.menge=old; showToast('⚠ Fehler beim Speichern'); }
+}
+
+async function ekSaveMinInline(id) {
+  const inp = document.getElementById(`ek-min-${id}`); if(!inp) return;
+  const mindeststand = inp.value.trim();
+  const it = ekFixItems.find(x=>x.id===id); if(!it) return;
+  if (it.mindeststand === mindeststand) return;
+  const old = it.mindeststand; it.mindeststand = mindeststand;
+  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({mindeststand:mindeststand||null})}); }
+  catch(e) { it.mindeststand=old; showToast('⚠ Fehler beim Speichern'); }
+}
 
 
 // ── LISTE VERWALTEN (inline, kein Modal) ─────────────────────────────────────
