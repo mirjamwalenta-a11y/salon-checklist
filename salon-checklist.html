@@ -806,6 +806,54 @@ async function ekSbFetch(path, opts={}) {
   return text ? JSON.parse(text) : [];
 }
 
+// ── Lokaler Cache & Offline Sync-Queue ──────────────────────────────────────
+const EK_CACHE_KEY  = 'ghd_einkauf_cache';
+const EK_QUEUE_KEY  = 'ghd_einkauf_queue';
+
+function ekCacheSpeichern() {
+  try {
+    localStorage.setItem(EK_CACHE_KEY, JSON.stringify({
+      listen: ekListen, items: ekItems, flex: ekFlexItems,
+      ts: Date.now()
+    }));
+  } catch(e) {}
+}
+
+function ekCacheLaden() {
+  try {
+    const raw = localStorage.getItem(EK_CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function ekQueueAdd(eintrag) {
+  try {
+    const q = ekQueueLaden();
+    q.push({ ...eintrag, ts: Date.now() });
+    localStorage.setItem(EK_QUEUE_KEY, JSON.stringify(q));
+  } catch(e) {}
+}
+
+function ekQueueLaden() {
+  try {
+    const raw = localStorage.getItem(EK_QUEUE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+async function ekQueueSync() {
+  const q = ekQueueLaden();
+  if (q.length === 0) return;
+  const offen = [];
+  for (const eintrag of q) {
+    try {
+      await ekSbFetch(eintrag.path, { method: eintrag.method, body: eintrag.body });
+    } catch(e) { offen.push(eintrag); }
+  }
+  localStorage.setItem(EK_QUEUE_KEY, JSON.stringify(offen));
+  if (offen.length === 0 && q.length > 0) showToast('☁️ Änderungen synchronisiert');
+}
+
 async function ekLadeAlles() {
   try {
     const l = await ekSbFetch('einkauf_listen?order=reihenfolge.asc');
@@ -826,9 +874,22 @@ async function ekLadeAlles() {
     // Flexible Items laden
     const flexItems = await ekSbFetch('einkauf_flex?order=reihenfolge.asc');
     ekFlexItems = flexItems;
+    ekCacheSpeichern();
+    await ekQueueSync();
     ekRender();
   } catch(e) {
-    document.getElementById('einkauf-content').innerHTML = `<div class="loading">⚠️ Fehler: ${e.message}</div>`;
+    // Offline: Cache anzeigen
+    const cache = ekCacheLaden();
+    if (cache) {
+      ekListen    = cache.listen  || [];
+      ekItems     = cache.items   || {};
+      ekFlexItems = cache.flex    || [];
+      if (!ekAktiveListeId && ekListen.length > 0) ekAktiveListeId = ekListen[0].id;
+      ekRender();
+      showToast('📴 Offline — lokale Daten');
+    } else {
+      document.getElementById('einkauf-content').innerHTML = `<div class="loading">⚠️ Fehler: ${e.message}</div>`;
+    }
   }
 }
 
@@ -859,19 +920,18 @@ function ekRenderFixItem(it) {
       </div>
     </div>`;
   }
-  // Menge-Edit direkt anzeigen wenn ekEditMengeId === it.id
   const mengeEditRow = ekEditMengeId===it.id ? `
-    <div class="ek-extra-fields" style="padding-left:0;margin-top:6px;display:flex;gap:6px;">
-      <input class="ek-extra-input" id="ek-menge-${it.id}" value="${(it.menge||'').replace(/"/g,'&quot;')}"
-        placeholder="Menge (z.B. 2 Stück)"
-        onblur="ekSaveMengeInline(${it.id})"
-        onkeydown="if(event.key==='Enter')ekSaveMengeInline(${it.id});if(event.key==='Escape'){ekEditMengeId=null;ekRender();}"
-        style="flex:1;">
-      <input class="ek-extra-input" id="ek-min-${it.id}" value="${(it.mindeststand||'').replace(/"/g,'&quot;')}"
-        placeholder="Min (z.B. 1)"
-        onblur="ekSaveMinInline(${it.id})"
-        onkeydown="if(event.key==='Enter')ekSaveMinInline(${it.id});if(event.key==='Escape'){ekEditMengeId=null;ekRender();}"
-        style="flex:1;">
+    <div style="display:flex;gap:6px;margin-top:8px;align-items:center;">
+      <input class="ek-extra-input" id="ek-menge-${it.id}"
+        value="${(it.menge||'').replace(/"/g,'&quot;')}" placeholder="Menge"
+        onkeydown="if(event.key==='Enter')ekSpeichernMenge(${it.id});if(event.key==='Escape'){ekEditMengeId=null;ekRender();}"
+        style="flex:1;min-width:0;">
+      <input class="ek-extra-input" id="ek-min-${it.id}"
+        value="${(it.mindeststand||'').replace(/"/g,'&quot;')}" placeholder="Min"
+        onkeydown="if(event.key==='Enter')ekSpeichernMenge(${it.id});if(event.key==='Escape'){ekEditMengeId=null;ekRender();}"
+        style="flex:1;min-width:0;">
+      <button onclick="event.stopPropagation();ekSpeichernMenge(${it.id})"
+        style="background:#896c32;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;">✓</button>
     </div>` : '';
 
   return `<div class="ek-item" style="${metaRow||ekEditMengeId===it.id?'align-items:flex-start;padding:12px 16px;':''}">
@@ -881,7 +941,7 @@ function ekRenderFixItem(it) {
       ${metaRow}
       ${mengeEditRow}
     </div>
-    <button class="ek-del-btn" title="Menge bearbeiten" onclick="event.stopPropagation();ekToggleMengeEdit(${it.id})" style="font-size:14px;opacity:0.5;margin-right:2px;">✏️</button>
+    <button class="ek-del-btn" title="Menge bearbeiten" onclick="event.stopPropagation();ekToggleMengeEdit(${it.id})" style="font-size:14px;opacity:0.6;margin-right:2px;">✏️</button>
     <button class="ek-del-btn" onclick="event.stopPropagation();ekDeleteFixItem(${it.id})">×</button>
   </div>`;
 }
@@ -1185,29 +1245,28 @@ function ekCancelEdit() { ekEditItemId=null; ekRender(); }
 function ekToggleMengeEdit(id) {
   ekEditMengeId = ekEditMengeId===id ? null : id;
   ekRender();
-  if (ekEditMengeId===id) {
-    setTimeout(() => document.getElementById(`ek-menge-${id}`)?.focus(), 50);
+  if (ekEditMengeId===id) setTimeout(()=>document.getElementById(`ek-menge-${id}`)?.focus(), 50);
+}
+
+async function ekSpeichernMenge(id) {
+  const mengeInp = document.getElementById(`ek-menge-${id}`);
+  const minInp   = document.getElementById(`ek-min-${id}`);
+  const it = (ekItems[ekAktiveListeId]||[]).find(x=>x.id===id); if(!it) return;
+  const menge        = mengeInp ? mengeInp.value.trim() : it.menge;
+  const mindeststand = minInp   ? minInp.value.trim()   : it.mindeststand;
+  it.menge=menge; it.mindeststand=mindeststand;
+  ekEditMengeId=null; ekRender();
+  // Sofort lokal speichern
+  ekCacheSpeichern();
+  // Supabase: versuchen, sonst in Queue
+  const body = JSON.stringify({menge:menge||null, mindeststand:mindeststand||null});
+  try {
+    await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH', body});
+    showToast('✓ Gespeichert');
+  } catch(e) {
+    ekQueueAdd({ path:`einkauf_items?id=eq.${id}`, method:'PATCH', body });
+    showToast('💾 Lokal gespeichert — wird synchronisiert');
   }
-}
-
-async function ekSaveMengeInline(id) {
-  const inp = document.getElementById(`ek-menge-${id}`); if(!inp) return;
-  const menge = inp.value.trim();
-  const it = ekFixItems.find(x=>x.id===id); if(!it) return;
-  if (it.menge === menge) return;
-  const old = it.menge; it.menge = menge;
-  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({menge:menge||null})}); }
-  catch(e) { it.menge=old; showToast('⚠ Fehler beim Speichern'); }
-}
-
-async function ekSaveMinInline(id) {
-  const inp = document.getElementById(`ek-min-${id}`); if(!inp) return;
-  const mindeststand = inp.value.trim();
-  const it = ekFixItems.find(x=>x.id===id); if(!it) return;
-  if (it.mindeststand === mindeststand) return;
-  const old = it.mindeststand; it.mindeststand = mindeststand;
-  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({mindeststand:mindeststand||null})}); }
-  catch(e) { it.mindeststand=old; showToast('⚠ Fehler beim Speichern'); }
 }
 
 
