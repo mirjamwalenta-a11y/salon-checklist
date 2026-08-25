@@ -1163,8 +1163,43 @@ function ekRenderFix() {
     </button>
   </div>` : '';
 
+  // Mindestmenge-Sektion: pro Kategorie gruppiert, nur nicht erledigte
+  const mindestProListe = ekListen.map(l => ({
+    liste: l,
+    artikel: (ekItems[l.id]||[]).filter(it => it.mindeststand && !it.erledigt)
+  })).filter(g => g.artikel.length > 0);
+
+  const mindestGesamt = mindestProListe.reduce((s, g) => s + g.artikel.length, 0);
+
+  const mindestHtml = mindestGesamt > 0 ? `
+    <div style="background:#FFF3CD;border:1px solid #F0C040;border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:800;color:#856404;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">
+        ⚠ Unter Mindestmenge — ${mindestGesamt} Artikel
+      </div>
+      ${mindestProListe.map(g => `
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11px;font-weight:700;color:#856404;margin-bottom:6px;padding-left:2px;">
+            ${g.liste.name} <span style="font-weight:500;opacity:.7;">(${g.artikel.length})</span>
+          </div>
+          <div class="checklist-card">
+            ${g.artikel.map(it => `
+              <div class="ek-item">
+                <div class="ek-cb" onclick="ekToggleFixItem(${it.id})"></div>
+                <div class="item-body" style="flex:1;">
+                  <div class="ek-item-text">${it.text}</div>
+                  <div class="ek-item-meta">
+                    <span class="ek-meta-badge warn">⚠ Min: ${it.mindeststand}</span>
+                    ${it.menge ? `<span class="ek-meta-badge">🛒 ${it.menge}</span>` : ''}
+                  </div>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>` : '';
+
   mc.innerHTML = `
     <div class="ek-listen-tabs">${tabsHtml}</div>
+    ${mindestHtml}
     ${listActions}
     <div class="ek-input-card" style="flex-direction:column;gap:8px;">
       <div style="display:flex;gap:8px;">
@@ -1340,8 +1375,8 @@ function showEinkauf() {
 }
 
 // ── WÖRNI: Offene Pflicht-Checklisten melden ──────────────────────────────
-const GHD_URL = 'https://lpuxvvfrrcnbuzafscyk.supabase.co';
-const GHD_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdXh2dmZycmNuYnV6YWZzY3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODIxNDcsImV4cCI6MjEwMDI1ODE0N30.6VZUmmXj_x3Q8J55s_tbOHcW5-U5OXllGoEBhypaVfI';
+const GHD_URL = SUPABASE_URL;
+const GHD_KEY = SUPABASE_KEY;
 const GHD_H = { "apikey": GHD_KEY, "Authorization": `Bearer ${GHD_KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" };
 
 async function woerniChecklistePruefen() {
