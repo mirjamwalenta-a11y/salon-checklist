@@ -993,6 +993,14 @@ async function ekToggleFixItem(id) {
   catch(e) { it.erledigt=prev; ekRender(); showToast('⚠ Fehler'); }
 }
 
+async function ekToggleFixItemInListe(id, listenId) {
+  const liste = ekItems[listenId]; if(!liste) return;
+  const it = liste.find(i=>i.id===id); if(!it) return;
+  const prev=it.erledigt; it.erledigt=!prev; ekRender();
+  try { await ekSbFetch(`einkauf_items?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({erledigt:!prev})}); }
+  catch(e) { it.erledigt=prev; ekRender(); showToast('⚠ Fehler'); }
+}
+
 async function ekDeleteFixItem(id) {
   const liste=ekItems[ekAktiveListeId];
   const idx=liste.findIndex(i=>i.id===id); if(idx===-1) return;
@@ -1148,12 +1156,13 @@ function ekRenderFix() {
     <span class="ek-stats-text">${done} von ${total} erledigt</span>
   </div>` : '';
 
-  let itemsHtml = '';
+  let offenHtml = '';
+  let erledigtHtml = '';
   if (listeItems.length===0) {
-    itemsHtml = `<div class="empty-state"><div style="font-size:36px;margin-bottom:8px">📋</div>Noch keine Pflichtartikel.<br>Füge Stammprodukte hinzu.</div>`;
+    offenHtml = `<div class="empty-state"><div style="font-size:36px;margin-bottom:8px">📋</div>Noch keine Pflichtartikel.<br>Füge Stammprodukte hinzu.</div>`;
   } else {
-    if (offenItems.length>0) itemsHtml += `<div class="checklist-card">${offenItems.map(it=>ekRenderFixItem(it)).join('')}</div>`;
-    if (erledigtItems.length>0) itemsHtml += `<div class="ek-done-label">Erledigt</div><div class="checklist-card">${erledigtItems.map(it=>ekRenderFixItem(it)).join('')}</div>`;
+    if (offenItems.length>0) offenHtml = `<div class="checklist-card">${offenItems.map(it=>ekRenderFixItem(it)).join('')}</div>`;
+    if (erledigtItems.length>0) erledigtHtml = `<div class="ek-done-label">Erledigt</div><div class="checklist-card">${erledigtItems.map(it=>ekRenderFixItem(it)).join('')}</div>`;
   }
 
   const allDone = total>0 && done===total;
@@ -1163,10 +1172,20 @@ function ekRenderFix() {
     </button>
   </div>` : '';
 
-  // Mindestmenge-Sektion: pro Kategorie gruppiert, nur nicht erledigte
+  // Mindestmenge-Sektion: pro Kategorie gruppiert, nur Artikel unter Mindestmenge
+  // Alle Listen durchsuchen — nicht nur die aktive
   const mindestProListe = ekListen.map(l => ({
     liste: l,
-    artikel: (ekItems[l.id]||[]).filter(it => it.mindeststand && !it.erledigt)
+    artikel: (ekItems[l.id]||[]).filter(it => {
+      if (!it.mindeststand || it.erledigt) return false;
+      // Führende Zahl extrahieren aus Text (z.B. "2 Stück" → 2, "1,5" → 1.5)
+      const numOf = s => { const m = String(s||'').replace(',','.').match(/[\d.]+/); return m ? parseFloat(m[0]) : NaN; };
+      const min = numOf(it.mindeststand);
+      if (isNaN(min)) return true;
+      const menge = numOf(it.menge);
+      if (isNaN(menge)) return true;
+      return menge < min;
+    })
   })).filter(g => g.artikel.length > 0);
 
   const mindestGesamt = mindestProListe.reduce((s, g) => s + g.artikel.length, 0);
@@ -1174,7 +1193,7 @@ function ekRenderFix() {
   const mindestHtml = mindestGesamt > 0 ? `
     <div style="background:#FFF3CD;border:1px solid #F0C040;border-radius:12px;padding:14px 16px;margin-bottom:16px;">
       <div style="font-size:11px;font-weight:800;color:#856404;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">
-        ⚠ Unter Mindestmenge — ${mindestGesamt} Artikel
+        🛒 Nachbestellen — ${mindestGesamt} Artikel
       </div>
       ${mindestProListe.map(g => `
         <div style="margin-bottom:12px;">
@@ -1184,9 +1203,9 @@ function ekRenderFix() {
           <div class="checklist-card">
             ${g.artikel.map(it => `
               <div class="ek-item">
-                <div class="ek-cb" onclick="ekToggleFixItem(${it.id})"></div>
+                <div class="ek-cb${it.erledigt?' checked':''}" onclick="ekToggleFixItemInListe(${it.id},${g.liste.id})"></div>
                 <div class="item-body" style="flex:1;">
-                  <div class="ek-item-text">${it.text}</div>
+                  <div class="ek-item-text${it.erledigt?' done':''}">${it.text}</div>
                   <div class="ek-item-meta">
                     <span class="ek-meta-badge warn">⚠ Min: ${it.mindeststand}</span>
                     ${it.menge ? `<span class="ek-meta-badge">🛒 ${it.menge}</span>` : ''}
@@ -1199,7 +1218,6 @@ function ekRenderFix() {
 
   mc.innerHTML = `
     <div class="ek-listen-tabs">${tabsHtml}</div>
-    ${mindestHtml}
     ${listActions}
     <div class="ek-input-card" style="flex-direction:column;gap:8px;">
       <div style="display:flex;gap:8px;">
@@ -1211,7 +1229,7 @@ function ekRenderFix() {
         <input class="ek-extra-input" id="ek-neu-min" placeholder="⚠ Mindeststand (z.B. 1)" type="text" onkeydown="if(event.key==='Enter')ekAddFixItem()">
       </div>
     </div>
-    ${statsHtml}${itemsHtml}${erledigtBtn}`;
+    ${statsHtml}${offenHtml}${mindestHtml}${erledigtHtml}${erledigtBtn}`;
 }
 
 function ekRenderFlex() {
