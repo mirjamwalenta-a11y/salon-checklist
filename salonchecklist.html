@@ -478,8 +478,8 @@ async function sbFetch(path, opts={}) {
   const { data: sessionData } = await AUTH_CLIENT.auth.getSession();
   const token = sessionData?.session?.access_token || SUPABASE_KEY;
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': opts.prefer||'return=representation', ...opts.headers },
-    ...opts
+    ...opts,
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': opts.prefer||'return=representation', ...opts.headers }
   });
   const text = await res.text();
   if(!res.ok) throw new Error(text);
