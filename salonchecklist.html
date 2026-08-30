@@ -864,9 +864,13 @@ let ekEditItemId = null;
 let ekEditMengeId = null;
 
 async function ekSbFetch(path, opts={}) {
+  // Wie bei den anderen Apps: echten Login-Token verwenden, wenn vorhanden
+  // (RLS-Schreibregeln verlangen auth.role()='authenticated'), sonst Anon-Key als Fallback.
+  const { data: { session } } = await AUTH_CLIENT.auth.getSession();
+  const token = session?.access_token || GHD_KEY2;
   const res = await fetch(`${GHD_URL2}/rest/v1/${path}`, {
-    headers: { 'apikey': GHD_KEY2, 'Authorization': `Bearer ${GHD_KEY2}`, 'Content-Type': 'application/json', 'Prefer': opts.prefer||'return=representation', ...opts.headers },
-    ...opts
+    ...opts,
+    headers: { 'apikey': GHD_KEY2, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': opts.prefer||'return=representation', ...opts.headers }
   });
   const text = await res.text();
   if (!res.ok) throw new Error(text);
