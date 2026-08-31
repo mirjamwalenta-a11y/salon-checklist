@@ -1469,6 +1469,9 @@ const GHD_KEY = SUPABASE_KEY;
 const GHD_H = { "apikey": GHD_KEY, "Authorization": `Bearer ${GHD_KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" };
 
 async function woerniChecklistePruefen() {
+  // Deaktiviert: Morgens/Untertags/Abends ist kein Wörni-Bereich.
+  // Wörni überwacht nur den Einkauf → woerniEinkaufPruefen()
+  return;
   try {
     const jetzt = new Date();
     const stunde = jetzt.getHours();
