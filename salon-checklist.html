@@ -1577,26 +1577,26 @@ woerniChecklistePruefen();
 // ── WÖRNI: Einkaufsliste Mindestmenge ──
 async function woerniEinkaufPruefen() {
   try {
-    // Direkt aus Supabase laden — unabhängig davon ob der Einkauf-Tab geöffnet wurde
+    // Direkt aus Supabase laden mit fetch — unabhängig von Session und Tab-Zustand
     const fehlendeArtikel = [];
     try {
-      const res = await ekSbFetch('einkauf_items?select=text,mindeststand,erledigt');
-      if (Array.isArray(res)) {
-        res.forEach(it => {
-          if (it.mindeststand && !it.erledigt) {
+      const r = await fetch(SUPABASE_URL + '/rest/v1/einkauf_items?select=text,mindeststand,erledigt', {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+      });
+      const items = await r.json();
+      if (Array.isArray(items)) {
+        items.forEach(it => {
+          // Unter Mindeststand: Menge als Zahl kleiner als Mindeststand
+          const menge = parseInt(it.menge) || 0;
+          const mindest = parseInt(it.mindeststand) || 0;
+          if (mindest > 0 && menge < mindest && !it.erledigt) {
             fehlendeArtikel.push(it.text);
           }
         });
       }
     } catch(e) {
-      // Fallback auf ekItems falls Supabase nicht erreichbar
-      Object.values(ekItems).forEach(liste => {
-        liste.forEach(it => {
-          if (it.mindeststand && !it.erledigt) {
-            fehlendeArtikel.push(it.text);
-          }
-        });
-      });
+      console.warn('Wörni Einkauf-Fetch fehlgeschlagen:', e);
+      return;
     }
 
     const SIGNAL_KEY = 'einkauf-mindestmenge-offen';
