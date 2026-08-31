@@ -328,6 +328,8 @@ async function abmelden() {
 function starteApp() {
   ladeAlles();
   startRealtime();
+  // Wörni-Prüfung nach Login — Session ist jetzt aktiv
+  setTimeout(woerniEinkaufPruefen, 3000);
 }
 
 const BEREICHE = {
@@ -1577,11 +1579,13 @@ woerniChecklistePruefen();
 // ── WÖRNI: Einkaufsliste Mindestmenge ──
 async function woerniEinkaufPruefen() {
   try {
-    // Direkt aus Supabase laden mit fetch — unabhängig von Session und Tab-Zustand
+    // Mit Login-Token laden (RLS benötigt authentifizierten User)
     const fehlendeArtikel = [];
     try {
-      const r = await fetch(SUPABASE_URL + '/rest/v1/einkauf_items?select=text,mindeststand,erledigt', {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+      const { data: { session } } = await AUTH_CLIENT.auth.getSession();
+      const token = session?.access_token || SUPABASE_KEY;
+      const r = await fetch(SUPABASE_URL + '/rest/v1/einkauf_items?select=text,menge,mindeststand,erledigt', {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
       });
       const items = await r.json();
       if (Array.isArray(items)) {
@@ -1649,10 +1653,7 @@ async function woerniEinkaufPruefen() {
 const _origEkLaden = typeof ekLaden === 'function' ? ekLaden : null;
 
 // Einkauf prüfen wenn Tab geöffnet wird
-document.addEventListener('DOMContentLoaded', () => {
-  // Direkt prüfen — liest jetzt selbst aus Supabase
-  setTimeout(woerniEinkaufPruefen, 2000);
-});
+// woerniEinkaufPruefen wird von starteApp() aufgerufen (nach Login)
 // ─────────────────────────────────────────────────────────────────────────────
 </script>
 
