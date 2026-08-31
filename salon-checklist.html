@@ -1638,7 +1638,13 @@ const _origEkLaden = typeof ekLaden === 'function' ? ekLaden : null;
 
 // Einkauf prüfen wenn Tab geöffnet wird
 document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(woerniEinkaufPruefen, 3000); // kurz warten bis ekItems geladen
+  // ekItems erst laden, dann Wörni-Prüfung starten
+  ekLadeAlles().then(() => {
+    woerniEinkaufPruefen();
+  }).catch(() => {
+    // Auch bei Fehler versuchen (Cache könnte vorhanden sein)
+    setTimeout(woerniEinkaufPruefen, 1000);
+  });
 });
 // ─────────────────────────────────────────────────────────────────────────────
 </script>
