@@ -328,8 +328,6 @@ async function abmelden() {
 function starteApp() {
   ladeAlles();
   startRealtime();
-  // Wörni-Prüfung nach Login — Session ist jetzt aktiv
-  setTimeout(woerniEinkaufPruefen, 3000);
 }
 
 const BEREICHE = {
@@ -1472,7 +1470,7 @@ const GHD_H = { "apikey": GHD_KEY, "Authorization": `Bearer ${GHD_KEY}`, "Conten
 
 async function woerniChecklistePruefen() {
   // Deaktiviert: Morgens/Untertags/Abends ist kein Wörni-Bereich.
-  // Wörni überwacht nur den Einkauf → woerniEinkaufPruefen()
+  // Wörni überwacht nur den Einkaufswagen → woerniEinkaufPruefen()
   return;
   try {
     const jetzt = new Date();
@@ -1579,29 +1577,15 @@ woerniChecklistePruefen();
 // ── WÖRNI: Einkaufsliste Mindestmenge ──
 async function woerniEinkaufPruefen() {
   try {
-    // Mit Login-Token laden (RLS benötigt authentifizierten User)
+    // Alle Items mit Mindestmenge die noch nicht erledigt sind sammeln
     const fehlendeArtikel = [];
-    try {
-      const { data: { session } } = await AUTH_CLIENT.auth.getSession();
-      const token = session?.access_token || SUPABASE_KEY;
-      const r = await fetch(SUPABASE_URL + '/rest/v1/einkauf_items?select=text,menge,mindeststand,erledigt', {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
+    Object.values(ekItems).forEach(liste => {
+      liste.forEach(it => {
+        if (it.mindeststand && !it.erledigt) {
+          fehlendeArtikel.push(it.text);
+        }
       });
-      const items = await r.json();
-      if (Array.isArray(items)) {
-        items.forEach(it => {
-          // Unter Mindeststand: Menge als Zahl kleiner als Mindeststand
-          const menge = parseInt(it.menge) || 0;
-          const mindest = parseInt(it.mindeststand) || 0;
-          if (mindest > 0 && menge < mindest && !it.erledigt) {
-            fehlendeArtikel.push(it.text);
-          }
-        });
-      }
-    } catch(e) {
-      console.warn('Wörni Einkauf-Fetch fehlgeschlagen:', e);
-      return;
-    }
+    });
 
     const SIGNAL_KEY = 'einkauf-mindestmenge-offen';
 
@@ -1653,7 +1637,9 @@ async function woerniEinkaufPruefen() {
 const _origEkLaden = typeof ekLaden === 'function' ? ekLaden : null;
 
 // Einkauf prüfen wenn Tab geöffnet wird
-// woerniEinkaufPruefen wird von starteApp() aufgerufen (nach Login)
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(woerniEinkaufPruefen, 3000); // kurz warten bis ekItems geladen
+});
 // ─────────────────────────────────────────────────────────────────────────────
 </script>
 
