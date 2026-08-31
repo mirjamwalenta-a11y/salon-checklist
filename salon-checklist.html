@@ -1577,15 +1577,27 @@ woerniChecklistePruefen();
 // ── WÖRNI: Einkaufsliste Mindestmenge ──
 async function woerniEinkaufPruefen() {
   try {
-    // Alle Items mit Mindestmenge die noch nicht erledigt sind sammeln
+    // Direkt aus Supabase laden — unabhängig davon ob der Einkauf-Tab geöffnet wurde
     const fehlendeArtikel = [];
-    Object.values(ekItems).forEach(liste => {
-      liste.forEach(it => {
-        if (it.mindeststand && !it.erledigt) {
-          fehlendeArtikel.push(it.text);
-        }
+    try {
+      const res = await ekSbFetch('einkauf_items?select=text,mindeststand,erledigt');
+      if (Array.isArray(res)) {
+        res.forEach(it => {
+          if (it.mindeststand && !it.erledigt) {
+            fehlendeArtikel.push(it.text);
+          }
+        });
+      }
+    } catch(e) {
+      // Fallback auf ekItems falls Supabase nicht erreichbar
+      Object.values(ekItems).forEach(liste => {
+        liste.forEach(it => {
+          if (it.mindeststand && !it.erledigt) {
+            fehlendeArtikel.push(it.text);
+          }
+        });
       });
-    });
+    }
 
     const SIGNAL_KEY = 'einkauf-mindestmenge-offen';
 
@@ -1638,13 +1650,8 @@ const _origEkLaden = typeof ekLaden === 'function' ? ekLaden : null;
 
 // Einkauf prüfen wenn Tab geöffnet wird
 document.addEventListener('DOMContentLoaded', () => {
-  // ekItems erst laden, dann Wörni-Prüfung starten
-  ekLadeAlles().then(() => {
-    woerniEinkaufPruefen();
-  }).catch(() => {
-    // Auch bei Fehler versuchen (Cache könnte vorhanden sein)
-    setTimeout(woerniEinkaufPruefen, 1000);
-  });
+  // Direkt prüfen — liest jetzt selbst aus Supabase
+  setTimeout(woerniEinkaufPruefen, 2000);
 });
 // ─────────────────────────────────────────────────────────────────────────────
 </script>
