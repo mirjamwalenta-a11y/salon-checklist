@@ -759,6 +759,14 @@ function renderAdmin() {
 
 async function zuweisungAendern(key, person) {
   if(!person) return;
+  // Direkter Aufruf (z.B. über die Konsole) soll wie der Admin-Button selbst geprüft werden,
+  // nicht nur das Öffnen des Admin-Bereichs.
+  const { data } = await AUTH_CLIENT.auth.getSession();
+  const eingeloggteEmail = data && data.session && data.session.user && data.session.user.email;
+  if (!eingeloggteEmail || eingeloggteEmail.toLowerCase() !== CHEFIN_EMAIL.toLowerCase()) {
+    showToast('❌ Nur die Chefin darf das ändern');
+    return;
+  }
   zuweisung[key] = person;
   try {
     await sbFetch(`salon_monatszuweisung?monat=eq.${MONAT_STR}&bereich=eq.${key}`,{method:'DELETE',prefer:''});
