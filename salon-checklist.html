@@ -1555,7 +1555,13 @@ const GHD_OS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 
 async function ghd_ereignisSchreiben(app, typ, titel, prioritaet, payload) {
   try {
-    const _h = { 'apikey': GHD_OS_KEY, 'Authorization': `Bearer ${GHD_OS_KEY}`, 'Content-Type': 'application/json' };
+    // Wie bei ekSbFetch(): echten Login-Token verwenden, wenn vorhanden, sonst
+    // Anon-Key als Fallback. Sonst sieht die Dublettenprüfung unten (SELECT)
+    // bereits vorhandene ungelesene Ereignisse u.U. nicht (RLS) und legt bei
+    // jedem Aufruf ein neues Ereignis an, statt das bestehende zu aktualisieren.
+    const { data: { session } } = await AUTH_CLIENT.auth.getSession();
+    const _token = session?.access_token || GHD_OS_KEY;
+    const _h = { 'apikey': GHD_OS_KEY, 'Authorization': `Bearer ${_token}`, 'Content-Type': 'application/json' };
     // order=erstellt_am.desc: das neueste bestehende Ereignis wird aktualisiert,
     // etwaige weitere (bereits doppelt entstandene) werden unten aufgeräumt.
     const _r = await fetch(`${GHD_OS_URL}/rest/v1/ghd_ereignisse?app=eq.${encodeURIComponent(app)}&typ=eq.${encodeURIComponent(typ)}&gelesen=eq.false&select=id&order=erstellt_am.desc`, { headers: _h });
