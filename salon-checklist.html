@@ -864,6 +864,7 @@ let ekFixTab = 'supermarkt'; // aktive Kategorie im Fix-Modus
 
 let ekListen = [];
 let ekItems = {};
+let ekDatenGeladen = false; // true erst, sobald ekItems tatsächlich befüllt wurde (aus Supabase oder Cache)
 let ekAktiveListeId = null;
 let ekModalListeEditId = null;
 let ekModalDeleteId = null;
@@ -952,6 +953,7 @@ async function ekLadeAlles() {
     // Flexible Items laden
     const flexItems = await ekSbFetch('einkauf_flex?order=reihenfolge.asc');
     ekFlexItems = flexItems;
+    ekDatenGeladen = true;
     ekCacheSpeichern();
     await ekQueueSync();
     ekRender();
@@ -962,6 +964,7 @@ async function ekLadeAlles() {
       ekListen    = cache.listen  || [];
       ekItems     = cache.items   || {};
       ekFlexItems = cache.flex    || [];
+      ekDatenGeladen = true;
       if (!ekAktiveListeId && ekListen.length > 0) ekAktiveListeId = ekListen[0].id;
       ekRender();
       showToast('📴 Offline — lokale Daten');
@@ -1581,6 +1584,11 @@ woerniChecklistePruefen();
 // ── WÖRNI: Einkaufsliste Mindestmenge ──
 async function woerniEinkaufPruefen() {
   try {
+    // Ohne geladene Einkaufsdaten keine Aussage möglich — sonst würde eine
+    // offene Einkaufs-Aufgabe fälschlich als "kein fehlender Artikel" erkannt
+    // und automatisch auf erledigt gesetzt.
+    if (!ekDatenGeladen) return;
+
     // Alle Items mit Mindestmenge die noch nicht erledigt sind sammeln
     const fehlendeArtikel = [];
     Object.values(ekItems).forEach(liste => {
