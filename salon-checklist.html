@@ -1589,13 +1589,18 @@ async function woerniEinkaufPruefen() {
     // und automatisch auf erledigt gesetzt.
     if (!ekDatenGeladen) return;
 
-    // Alle Items mit Mindestmenge die noch nicht erledigt sind sammeln
+    // Alle Items sammeln, die WIRKLICH unter ihrer Mindestmenge liegen —
+    // dieselbe Vergleichslogik wie in ekRenderFix() ("🛒 Nachbestellen"),
+    // damit Wörni und die App-Anzeige denselben Artikel-Bestand melden.
+    const numOf = s => { const m = String(s||'').replace(',','.').match(/[\d.]+/); return m ? parseFloat(m[0]) : NaN; };
     const fehlendeArtikel = [];
     Object.values(ekItems).forEach(liste => {
       liste.forEach(it => {
-        if (it.mindeststand && !it.erledigt) {
-          fehlendeArtikel.push(it.text);
-        }
+        if (!it.mindeststand || it.erledigt) return;
+        const min = numOf(it.mindeststand);
+        const menge = numOf(it.menge);
+        const unterMindestmenge = isNaN(min) || isNaN(menge) || menge < min;
+        if (unterMindestmenge) fehlendeArtikel.push(it.text);
       });
     });
 
