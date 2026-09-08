@@ -5,6 +5,7 @@
   <link rel="apple-touch-icon" href="https://mirjamwalenta-a11y.github.io/abwesenheiten-ghd/icon-512.png">
   <meta name="theme-color" content="#1c1917">
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://wrxlaltgtgkdomklgrlj.supabase.co wss://wrxlaltgtgkdomklgrlj.supabase.co; font-src 'self' data:; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -297,6 +298,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 const SUPABASE_URL = 'https://wrxlaltgtgkdomklgrlj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyeGxhbHRndGdrZG9ta2xncmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyNDYwMzYsImV4cCI6MjA5OTgyMjAzNn0.Bw8ch-EJb_cLYTwxHdpjUJWgoCjje3Jc32pB0yiBS8g';
 
+function esc(str){
+  return String(str ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 /* ── Supabase Auth Login ── */
 const AUTH_CLIENT = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -322,6 +329,11 @@ async function loginMitSupabase() {
 
 async function abmelden() {
   await AUTH_CLIENT.auth.signOut();
+  try {
+    localStorage.removeItem('ghd_einkauf_cache');
+    localStorage.removeItem('ghd_einkauf_queue');
+    localStorage.removeItem('ek-notiz');
+  } catch(e) { console.warn('Cache konnte nicht geleert werden:', e); }
   location.reload();
 }
 
@@ -476,7 +488,9 @@ let currentTageszeit = 'morgens';
 
 async function sbFetch(path, opts={}) {
   const { data: sessionData } = await AUTH_CLIENT.auth.getSession();
-  const token = sessionData?.session?.access_token || SUPABASE_KEY;
+  const isWrite = opts.method && opts.method !== 'GET';
+  const token = sessionData?.session?.access_token || (isWrite ? null : SUPABASE_KEY);
+  if (isWrite && !token) throw new Error('Nicht angemeldet');
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': opts.prefer||'return=representation', ...opts.headers },
     ...opts
@@ -502,7 +516,8 @@ async function ladeAlles() {
 
     renderMain();
   } catch(e) {
-    document.getElementById('main-content').innerHTML = `<div class="loading">⚠️ Verbindung fehlgeschlagen.<br><small>${e.message}</small></div>`;
+    console.error(e);
+    document.getElementById('main-content').innerHTML = `<div class="loading">⚠️ Verbindung fehlgeschlagen. Bitte erneut versuchen.</div>`;
   }
 }
 
@@ -550,7 +565,7 @@ function renderMain() {
 
     html += `
       <div class="area-card" onclick="openDetail('${key}')">
-        <div class="card-top"><div class="area-name">${b.name}</div><div class="resp-pill">${person}</div></div>
+        <div class="card-top"><div class="area-name">${esc(b.name)}</div><div class="resp-pill">${esc(person)}</div></div>
         <div class="prog-row">
           <div class="prog-bg"><div class="prog-fill ${fc}" style="width:${pct}%"></div></div>
           <div class="prog-text">${done} von ${total}</div>
@@ -571,7 +586,7 @@ function openDetailTz(key, tz) {
   const b = BEREICHE[key];
   const person = zuweisung[key]||'–';
   document.getElementById('detail-title').textContent = b.name;
-  document.getElementById('detail-resp').innerHTML = `Verantwortlich: <span>${person}</span>`;
+  document.getElementById('detail-resp').innerHTML = `Verantwortlich: <span>${esc(person)}</span>`;
   document.getElementById('detail-screen').classList.add('open');
   renderTzTabs();
   renderDetail();
@@ -583,7 +598,7 @@ function openDetail(key) {
   const b = BEREICHE[key];
   const person = zuweisung[key]||'–';
   document.getElementById('detail-title').textContent = b.name;
-  document.getElementById('detail-resp').innerHTML = `Verantwortlich: <span>${person}</span>`;
+  document.getElementById('detail-resp').innerHTML = `Verantwortlich: <span>${esc(person)}</span>`;
   document.getElementById('detail-screen').classList.add('open');
   renderTzTabs();
   renderDetail();
@@ -634,8 +649,8 @@ function renderDetail() {
       <div class="check-item${vortag?' vortag':''}" onclick="toggleItem('${key}','${tz}',${i})">
         <div class="cb${done?' checked':''}"></div>
         <div class="item-body">
-          <div class="item-label${done?' done':''}">${vortag?'<span class="vortag-dot"></span>':''}${aufgabe}</div>
-          ${done?`<div class="item-meta">${check.person} · ${check.uhrzeit}</div>`:''}
+          <div class="item-label${done?' done':''}">${vortag?'<span class="vortag-dot"></span>':''}${esc(aufgabe)}</div>
+          ${done?`<div class="item-meta">${esc(check.person)} · ${esc(check.uhrzeit)}</div>`:''}
         </div>
       </div>`;
   });
@@ -689,7 +704,7 @@ function showMonth() {
   let html = `<div class="month-header-card"><div class="month-label-sm">Aktuelle Zuweisung</div><div class="month-name">${MONAT_ANZEIGE}</div></div><div class="slabel">Verantwortliche Personen</div>`;
   Object.entries(BEREICHE).forEach(([key,b]) => {
     const person = zuweisung[key]||'–';
-    html += `<div class="month-card"><div class="mc-area">${b.name}</div><div class="mc-person-row"><div class="mc-avatar">${person.charAt(0)}</div><div><div class="mc-name">${person}</div><div class="mc-role">Hauptverantwortlich ${MONATE_DE[HEUTE.getMonth()]}</div></div></div></div>`;
+    html += `<div class="month-card"><div class="mc-area">${esc(b.name)}</div><div class="mc-person-row"><div class="mc-avatar">${esc(person.charAt(0))}</div><div><div class="mc-name">${esc(person)}</div><div class="mc-role">Hauptverantwortlich ${MONATE_DE[HEUTE.getMonth()]}</div></div></div></div>`;
   });
   document.getElementById('month-content').innerHTML = html;
 }
@@ -719,7 +734,7 @@ function renderAdmin() {
   Object.entries(BEREICHE).forEach(([key,b]) => {
     const curr = zuweisung[key]||'';
     html += `<div class="admin-row">
-      <div><div class="admin-row-label">${b.name}</div><div class="admin-row-sub">Verantwortlich: ${curr||'–'}</div></div>
+      <div><div class="admin-row-label">${esc(b.name)}</div><div class="admin-row-sub">Verantwortlich: ${esc(curr)||'–'}</div></div>
       <select class="admin-select" onchange="zuweisungAendern('${key}',this.value)">
         <option value="">–</option>
         ${TEAM.map(n=>`<option value="${n}"${curr===n?' selected':''}>${n}</option>`).join('')}
@@ -872,10 +887,13 @@ let ekEditItemId = null;
 let ekEditMengeId = null;
 
 async function ekSbFetch(path, opts={}) {
-  // Wie bei den anderen Apps: echten Login-Token verwenden, wenn vorhanden
-  // (RLS-Schreibregeln verlangen auth.role()='authenticated'), sonst Anon-Key als Fallback.
+  // Wie bei den anderen Apps: echten Login-Token verwenden. Bei Schreibzugriffen
+  // OHNE Session wird abgebrochen statt anonym mit dem Anon-Key zu schreiben
+  // (RLS-Schreibregeln verlangen ohnehin auth.role()='authenticated').
   const { data: { session } } = await AUTH_CLIENT.auth.getSession();
-  const token = session?.access_token || GHD_KEY2;
+  const isWrite = opts.method && opts.method !== 'GET';
+  const token = session?.access_token || (isWrite ? null : GHD_KEY2);
+  if (isWrite && !token) throw new Error('Nicht angemeldet');
   const res = await fetch(`${GHD_URL2}/rest/v1/${path}`, {
     ...opts,
     headers: { 'apikey': GHD_KEY2, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Prefer': opts.prefer||'return=representation', ...opts.headers }
@@ -969,7 +987,8 @@ async function ekLadeAlles() {
       ekRender();
       showToast('📴 Offline — lokale Daten');
     } else {
-      document.getElementById('einkauf-content').innerHTML = `<div class="loading">⚠️ Fehler: ${e.message}</div>`;
+      console.error(e);
+      document.getElementById('einkauf-content').innerHTML = `<div class="loading">⚠️ Fehler beim Laden. Bitte erneut versuchen.</div>`;
     }
   }
 }
@@ -1018,7 +1037,7 @@ function ekRenderFixItem(it) {
   return `<div class="ek-item" style="${metaRow||ekEditMengeId===it.id?'align-items:flex-start;padding:12px 16px;':''}">
     <div class="ek-cb${it.erledigt?' checked':''}" onclick="event.stopPropagation();ekToggleFixItem(${it.id})" style="${metaRow?'margin-top:2px;':''}"></div>
     <div class="item-body" style="flex:1;">
-      <div class="ek-item-text${it.erledigt?' done':''}" onclick="ekStartEdit(${it.id})">${it.text}</div>
+      <div class="ek-item-text${it.erledigt?' done':''}" onclick="ekStartEdit(${it.id})">${esc(it.text)}</div>
       ${metaRow}
       ${mengeEditRow}
     </div>
@@ -1119,7 +1138,7 @@ function ekRenderFlexItem(it) {
   }
   return `<div class="ek-item">
     <div class="ek-cb${it.erledigt?' checked':''}" onclick="ekToggleFlexItem(${it.id})"></div>
-    <div class="ek-item-text${it.erledigt?' done':''}" ondblclick="ekStartEdit(${it.id})">${it.text}</div>
+    <div class="ek-item-text${it.erledigt?' done':''}" ondblclick="ekStartEdit(${it.id})">${esc(it.text)}</div>
     <button class="ek-del-btn" onclick="ekDeleteFlexItem(${it.id})">×</button>
   </div>`;
 }
@@ -1200,7 +1219,7 @@ function ekRenderFix() {
     const total = itms.length;
     const active = l.id===ekAktiveListeId?' active':'';
     const badge = total>0 ? `<span class="ek-badge">${offen}/${total}</span>` : '';
-    return `<button class="ek-listen-tab${active}" onclick="ekSwitchListe(${l.id})">${l.name}${badge}</button>`;
+    return `<button class="ek-listen-tab${active}" onclick="ekSwitchListe(${l.id})">${esc(l.name)}${badge}</button>`;
   }).join('');
   tabsHtml = `<button class="ek-listen-tab${ekAktiveListeId==='notiz'?' active':''}" onclick="ekZeigeNotiz()" style="flex-shrink:0;">🎤 Notiz</button>` + tabsHtml;
   tabsHtml += `<button class="ek-add-list-btn" onclick="ekOpenModalNeueListe()">+ Liste</button>`;
@@ -1281,17 +1300,17 @@ function ekRenderFix() {
       ${mindestProListe.map(g => `
         <div style="margin-bottom:12px;">
           <div style="font-size:11px;font-weight:700;color:#856404;margin-bottom:6px;padding-left:2px;">
-            ${g.liste.name} <span style="font-weight:500;opacity:.7;">(${g.artikel.length})</span>
+            ${esc(g.liste.name)} <span style="font-weight:500;opacity:.7;">(${g.artikel.length})</span>
           </div>
           <div class="checklist-card">
             ${g.artikel.map(it => `
               <div class="ek-item">
                 <div class="ek-cb${it.erledigt?' checked':''}" onclick="ekToggleFixItemInListe(${it.id},${g.liste.id})"></div>
                 <div class="item-body" style="flex:1;">
-                  <div class="ek-item-text${it.erledigt?' done':''}">${it.text}</div>
+                  <div class="ek-item-text${it.erledigt?' done':''}">${esc(it.text)}</div>
                   <div class="ek-item-meta">
-                    <span class="ek-meta-badge warn">⚠ Min: ${it.mindeststand}</span>
-                    ${it.menge ? `<span class="ek-meta-badge">🛒 ${it.menge}</span>` : ''}
+                    <span class="ek-meta-badge warn">⚠ Min: ${esc(it.mindeststand)}</span>
+                    ${it.menge ? `<span class="ek-meta-badge">🛒 ${esc(it.menge)}</span>` : ''}
                   </div>
                 </div>
               </div>`).join('')}
@@ -1478,7 +1497,24 @@ function showEinkauf() {
 // ── WÖRNI: Offene Pflicht-Checklisten melden ──────────────────────────────
 const GHD_URL = SUPABASE_URL;
 const GHD_KEY = SUPABASE_KEY;
-const GHD_H = { "apikey": GHD_KEY, "Authorization": `Bearer ${GHD_KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" };
+
+// Session-Token statt Anon-Key. Bei Schreibzugriffen (PATCH/POST) ohne Session
+// wird abgebrochen statt anonym zu schreiben (Golden Rule 2).
+async function ghdWrite(url, opts = {}) {
+  const { data: { session } } = await AUTH_CLIENT.auth.getSession();
+  const isWrite = opts.method && opts.method !== 'GET';
+  if (isWrite && !session) throw new Error('Nicht angemeldet');
+  const token = session?.access_token || GHD_KEY;
+  return fetch(url, {
+    ...opts,
+    headers: {
+      'apikey': GHD_KEY,
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json',
+      ...(opts.headers || {})
+    }
+  });
+}
 
 async function woerniChecklistePruefen() {
   try {
@@ -1521,17 +1557,17 @@ async function woerniChecklistePruefen() {
     const naechster_schritt = `Checklisten-App öffnen und prüfen: ${offeneBereiche.slice(0,2).join(', ')}`;
 
     // Prüfen ob Aufgabe bereits existiert
-    const check = await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt&select=id`, { headers: GHD_H });
+    const check = await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt&select=id`);
     const existing = await check.json();
 
     if (Array.isArray(existing) && existing.length > 0) {
-      await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt`, {
-        method: 'PATCH', headers: GHD_H,
+      await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt`, {
+        method: 'PATCH', headers: { 'Prefer': 'return=minimal' },
         body: JSON.stringify({ titel, naechster_schritt, geaendert_am: new Date().toISOString() })
       });
     } else {
-      await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben`, {
-        method: 'POST', headers: GHD_H,
+      await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben`, {
+        method: 'POST', headers: { 'Prefer': 'return=minimal' },
         body: JSON.stringify({
           typ: 'checkliste',
           titel,
@@ -1551,36 +1587,27 @@ async function woerniChecklistePruefen() {
 }
 
 // ── GHD OS: Ereignis in zentrale ghd_ereignisse-Tabelle schreiben ──
-// Supabase-Projekt: wrxlaltgtgkdomklgrlj (= Wörni / GHD OS)
-const GHD_OS_URL = 'https://wrxlaltgtgkdomklgrlj.supabase.co';
-const GHD_OS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyeGxhbHRndGdrZG9ta2xncmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyNDYwMzYsImV4cCI6MjA5OTgyMjAzNn0.Bw8ch-EJb_cLYTwxHdpjUJWgoCjje3Jc32pB0yiBS8g';
-
+// Supabase-Projekt: wrxlaltgtgkdomklgrlj (= Wörni / GHD OS), selbes Projekt wie GHD_URL —
+// nutzt denselben ghdWrite()-Helfer (Session-Token, kein anon-Key bei Writes).
 async function ghd_ereignisSchreiben(app, typ, titel, prioritaet, payload) {
   try {
-    // Wie bei ekSbFetch(): echten Login-Token verwenden, wenn vorhanden, sonst
-    // Anon-Key als Fallback. Sonst sieht die Dublettenprüfung unten (SELECT)
-    // bereits vorhandene ungelesene Ereignisse u.U. nicht (RLS) und legt bei
-    // jedem Aufruf ein neues Ereignis an, statt das bestehende zu aktualisieren.
-    const { data: { session } } = await AUTH_CLIENT.auth.getSession();
-    const _token = session?.access_token || GHD_OS_KEY;
-    const _h = { 'apikey': GHD_OS_KEY, 'Authorization': `Bearer ${_token}`, 'Content-Type': 'application/json' };
     // order=erstellt_am.desc: das neueste bestehende Ereignis wird aktualisiert,
     // etwaige weitere (bereits doppelt entstandene) werden unten aufgeräumt.
-    const _r = await fetch(`${GHD_OS_URL}/rest/v1/ghd_ereignisse?app=eq.${encodeURIComponent(app)}&typ=eq.${encodeURIComponent(typ)}&gelesen=eq.false&select=id&order=erstellt_am.desc`, { headers: _h });
+    const _r = await ghdWrite(`${GHD_URL}/rest/v1/ghd_ereignisse?app=eq.${encodeURIComponent(app)}&typ=eq.${encodeURIComponent(typ)}&gelesen=eq.false&select=id&order=erstellt_am.desc`);
     const _ex = await _r.json();
     if (Array.isArray(_ex) && _ex.length > 0) {
       const _neuestesId = _ex[0].id;
-      await fetch(`${GHD_OS_URL}/rest/v1/ghd_ereignisse?id=eq.${_neuestesId}`,
-        { method: 'PATCH', headers: { ..._h, 'Prefer': 'return=minimal' }, body: JSON.stringify({ titel, prioritaet, erstellt_am: new Date().toISOString(), payload: payload || null }) });
+      await ghdWrite(`${GHD_URL}/rest/v1/ghd_ereignisse?id=eq.${_neuestesId}`,
+        { method: 'PATCH', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify({ titel, prioritaet, erstellt_am: new Date().toISOString(), payload: payload || null }) });
       // Bereits vorhandene weitere Duplikate desselben Falls aufräumen (als gelesen markieren)
       if (_ex.length > 1) {
         const _altIds = _ex.slice(1).map(e => e.id).join(',');
-        await fetch(`${GHD_OS_URL}/rest/v1/ghd_ereignisse?id=in.(${_altIds})`,
-          { method: 'PATCH', headers: { ..._h, 'Prefer': 'return=minimal' }, body: JSON.stringify({ gelesen: true }) });
+        await ghdWrite(`${GHD_URL}/rest/v1/ghd_ereignisse?id=in.(${_altIds})`,
+          { method: 'PATCH', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify({ gelesen: true }) });
       }
     } else {
-      await fetch(`${GHD_OS_URL}/rest/v1/ghd_ereignisse`,
-        { method: 'POST', headers: { ..._h, 'Prefer': 'return=minimal' }, body: JSON.stringify({ app, typ, titel, prioritaet, payload: payload || null, gelesen: false }) });
+      await ghdWrite(`${GHD_URL}/rest/v1/ghd_ereignisse`,
+        { method: 'POST', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify({ app, typ, titel, prioritaet, payload: payload || null, gelesen: false }) });
     }
   } catch(e) { console.warn('ghd_ereignis fehlgeschlagen:', e); }
 }
@@ -1618,8 +1645,8 @@ async function woerniEinkaufPruefen() {
 
     if (fehlendeArtikel.length === 0) {
       // Aufgabe als erledigt markieren falls vorhanden
-      await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt`, {
-        method: 'PATCH', headers: GHD_H,
+      await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt`, {
+        method: 'PATCH', headers: { 'Prefer': 'return=minimal' },
         body: JSON.stringify({ status: 'erledigt', erledigt_am: new Date().toISOString(), erledigt_von: 'system', geaendert_am: new Date().toISOString() })
       });
       return;
@@ -1631,17 +1658,17 @@ async function woerniEinkaufPruefen() {
     // Kein zusätzliches Ereignis in "Neu aus Apps": Dieser Führungsfall wird bereits
     // vollständig über die signal_key-basierte Aufgabe unten geführt (Duplikat sonst möglich).
 
-    const check = await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt&select=id`, { headers: GHD_H });
+    const check = await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt&select=id`);
     const existing = await check.json();
 
     if (Array.isArray(existing) && existing.length > 0) {
-      await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt`, {
-        method: 'PATCH', headers: GHD_H,
+      await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt`, {
+        method: 'PATCH', headers: { 'Prefer': 'return=minimal' },
         body: JSON.stringify({ titel, naechster_schritt, geaendert_am: new Date().toISOString() })
       });
     } else {
-      await fetch(`${GHD_URL}/rest/v1/ghd_aufgaben`, {
-        method: 'POST', headers: GHD_H,
+      await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben`, {
+        method: 'POST', headers: { 'Prefer': 'return=minimal' },
         body: JSON.stringify({
           typ: 'einkauf',
           titel,
@@ -1692,7 +1719,7 @@ function ekRenderNotiz(mc) {
     : items.map((it, i) => `
         <div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #F2F2F7;">
           <input type="checkbox" ${it.done?'checked':''} onchange="ekNotizToggle(${i})" style="width:20px;height:20px;cursor:pointer;accent-color:#1C1C1E;">
-          <span style="flex:1;font-size:15px;${it.done?'text-decoration:line-through;color:#8E8E93;':'color:#1C1C1E;'}">${it.text}</span>
+          <span style="flex:1;font-size:15px;${it.done?'text-decoration:line-through;color:#8E8E93;':'color:#1C1C1E;'}">${esc(it.text)}</span>
           <button onclick="ekNotizDelete(${i})" style="background:none;border:none;font-size:18px;cursor:pointer;color:#C0392B;">×</button>
         </div>`).join('');
 
@@ -1700,7 +1727,7 @@ function ekRenderNotiz(mc) {
     <div class="ek-listen-tabs">
       ${ekListen.map(l => {
         const active = l.id===ekAktiveListeId?' active':'';
-        return '<button class="ek-listen-tab'+active+'" onclick="ekSwitchListe('+l.id+')">'+l.name+'</button>';
+        return '<button class="ek-listen-tab'+active+'" onclick="ekSwitchListe('+l.id+')">'+esc(l.name)+'</button>';
       }).join('')}
       <button class="ek-listen-tab active" style="flex-shrink:0;">🎤 Notiz</button>
       <button class="ek-add-list-btn" onclick="ekOpenModalNeueListe()">+ Liste</button>
@@ -1777,18 +1804,22 @@ function ekNotizMikro() {
 </script>
 <script>
 // ── Wörni / Claude – sicherer Proxy ──
-async function claudeAnfrage(system, userText, maxTokens) {
-  maxTokens = maxTokens || 400;
-  const res = await fetch('https://wrxlaltgtgkdomklgrlj.supabase.co/functions/v1/rapid-function', {
+// Modell/Prompt/Limit stehen serverseitig in der Edge Function fest;
+// der Browser schickt nur zweck+text und muss eingeloggt sein.
+async function claudeAnfrage(system, userText) {
+  const { data: s } = await AUTH_CLIENT.auth.getSession();
+  if (!s?.session) return null;
+  const zweck = (typeof system === 'string' && /einkauf/i.test(system)) ? 'einkauf' : 'checkliste';
+  const res = await fetch(SUPABASE_URL + '/functions/v1/rapid-function', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_KEY },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: maxTokens,
-      system: system,
-      messages: [{ role: 'user', content: userText }]
-    })
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + s.session.access_token
+    },
+    body: JSON.stringify({ zweck, text: userText })
   });
+  if (!res.ok) return null;
   const data = await res.json();
   return data?.content?.[0]?.text || null;
 }
