@@ -1264,7 +1264,9 @@ function ekRenderFix() {
       const min = numOf(it.mindeststand);
       if (isNaN(min)) return true;
       const menge = numOf(it.menge);
-      if (isNaN(menge)) return true;
+      // Ohne erfasste aktuelle Menge ist NICHT bekannt, ob der Artikel wirklich fehlt —
+      // er darf deshalb nicht automatisch mitgezählt werden (sonst falsche Artikelzahl).
+      if (isNaN(menge)) return false;
       return menge < min;
     })
   })).filter(g => g.artikel.length > 0);
@@ -1605,7 +1607,9 @@ async function woerniEinkaufPruefen() {
         if (!it.mindeststand || it.erledigt) return;
         const min = numOf(it.mindeststand);
         const menge = numOf(it.menge);
-        const unterMindestmenge = isNaN(min) || isNaN(menge) || menge < min;
+        // Ohne erfasste Menge ist unbekannt, ob der Artikel wirklich fehlt — nicht automatisch
+        // mitzählen (dieselbe Korrektur wie in ekRenderFix, damit beide übereinstimmen).
+        const unterMindestmenge = isNaN(min) ? true : (isNaN(menge) ? false : menge < min);
         if (unterMindestmenge) fehlendeArtikel.push(it.text);
       });
     });
