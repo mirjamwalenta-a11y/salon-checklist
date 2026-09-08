@@ -1523,38 +1523,50 @@ async function woerniChecklistePruefen() {
     // Nur abends ab 17:00 Uhr prüfen
     if (stunde < 17) return;
 
-    const tageszeiten = ['morgens','mittags','abends'];
-    const offeneBereiche = [];
+    // 'untertags' statt 'mittags' — muss exakt den Schlüsseln in BEREICHE[].aufgaben
+    // entsprechen (siehe getTotalUndDone), sonst werden untertags-Aufgaben stillschweigend
+    // nie geprüft. 'woechentlich' bleibt hier bewusst außen vor (Tagescheck, kein Wochencheck).
+    const tageszeiten = ['morgens','untertags','abends'];
+    const offeneBereicheDetails = []; // pro Bereich: Name + welche Zeitfenster offen sind
+    let offeneAufgabenGesamt = 0;
 
     Object.entries(BEREICHE).forEach(([bereichKey, bereich]) => {
+      const offeneZeiten = [];
       tageszeiten.forEach(tz => {
         const aufgaben = bereich.aufgaben[tz];
         if (!aufgaben || aufgaben.length === 0) return;
         const offen = aufgaben.filter((_, idx) => !checksHeute[`${bereichKey}-${tz}-${idx}`]);
         if (offen.length > 0) {
-          offeneBereiche.push(`${bereich.name} (${tz}: ${offen.length} offen)`);
+          offeneZeiten.push(`${tz}: ${offen.length} offen`);
+          offeneAufgabenGesamt += offen.length;
         }
       });
+      // Ein Bereich zählt nur EINMAL als "offen", unabhängig davon, in wie vielen
+      // Zeitfenstern (morgens/untertags/abends) dort noch etwas offen ist — Mirjam hat
+      // nur 3 echte Bereiche, die Zahl darf das nicht überschreiten.
+      if (offeneZeiten.length > 0) {
+        offeneBereicheDetails.push(`${bereich.name} (${offeneZeiten.join(', ')})`);
+      }
     });
 
-    if (offeneBereiche.length === 0) return; // alles erledigt
+    if (offeneBereicheDetails.length === 0) return; // alles erledigt
 
     // Priorität einheitlich berechnen — dieselbe Einstufung geht sowohl ins Ereignis
     // als auch in die Aufgabe, damit beide dasselbe Bild zeigen.
-    const prioritaet = offeneBereiche.length >= 3 ? 'heute' : 'diese-woche';
+    const prioritaet = offeneBereicheDetails.length >= 2 ? 'heute' : 'diese-woche';
 
     // GHD OS: Ereignis in zentrale Tabelle schreiben
     await ghd_ereignisSchreiben(
       'Checklisten',
       'checkliste_offen',
-      `Checkliste nicht vollständig – ${offeneBereiche.length} Bereich(e) offen`,
+      `Checkliste nicht vollständig – ${offeneBereicheDetails.length} Bereich(e) offen (${offeneAufgabenGesamt} Aufgaben)`,
       prioritaet,
-      { bereiche: offeneBereiche, datum: HEUTE_STR }
+      { bereiche: offeneBereicheDetails, datum: HEUTE_STR }
     );
 
     const SIGNAL_KEY = `checkliste-offen-${HEUTE_STR}`;
-    const titel = `Checkliste heute nicht vollständig – ${offeneBereiche.length} Bereich(e) offen`;
-    const naechster_schritt = `Checklisten-App öffnen und prüfen: ${offeneBereiche.slice(0,2).join(', ')}`;
+    const titel = `Checkliste heute nicht vollständig – ${offeneBereicheDetails.length} Bereich(e) offen (${offeneAufgabenGesamt} Aufgaben)`;
+    const naechster_schritt = `Checklisten-App öffnen und prüfen: ${offeneBereicheDetails.slice(0,2).join(', ')}`;
 
     // Prüfen ob Aufgabe bereits existiert
     const check = await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt&select=id`);
@@ -1612,10 +1624,10 @@ async function ghd_ereignisSchreiben(app, typ, titel, prioritaet, payload) {
   } catch(e) { console.warn('ghd_ereignis fehlgeschlagen:', e); }
 }
 
-// Alle 30 Minuten prüfen (passt zum bestehenden Reload-Intervall)
-setInterval(woerniChecklistePruefen, 30 * 60 * 1000);
-// Einmal beim Start prüfen (falls App abends geöffnet wird)
-woerniChecklistePruefen();
+// Auf Wunsch deaktiviert: die Reinigungs-Checkliste soll nicht mehr an Wörni
+// gemeldet werden, nur noch der Einkauf (siehe woerniEinkaufPruefen unten).
+// setInterval(woerniChecklistePruefen, 30 * 60 * 1000);
+// woerniChecklistePruefen();
 // ── WÖRNI: Einkaufsliste Mindestmenge ──
 async function woerniEinkaufPruefen() {
   try {
