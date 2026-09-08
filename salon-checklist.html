@@ -5,6 +5,7 @@
   <link rel="apple-touch-icon" href="https://mirjamwalenta-a11y.github.io/abwesenheiten-ghd/icon-512.png">
   <meta name="theme-color" content="#1c1917">
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://wrxlaltgtgkdomklgrlj.supabase.co wss://wrxlaltgtgkdomklgrlj.supabase.co; font-src 'self' data:; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -328,6 +329,11 @@ async function loginMitSupabase() {
 
 async function abmelden() {
   await AUTH_CLIENT.auth.signOut();
+  try {
+    localStorage.removeItem('ghd_einkauf_cache');
+    localStorage.removeItem('ghd_einkauf_queue');
+    localStorage.removeItem('ek-notiz');
+  } catch(e) { console.warn('Cache konnte nicht geleert werden:', e); }
   location.reload();
 }
 
@@ -510,7 +516,8 @@ async function ladeAlles() {
 
     renderMain();
   } catch(e) {
-    document.getElementById('main-content').innerHTML = `<div class="loading">⚠️ Verbindung fehlgeschlagen.<br><small>${e.message}</small></div>`;
+    console.error(e);
+    document.getElementById('main-content').innerHTML = `<div class="loading">⚠️ Verbindung fehlgeschlagen. Bitte erneut versuchen.</div>`;
   }
 }
 
@@ -980,7 +987,8 @@ async function ekLadeAlles() {
       ekRender();
       showToast('📴 Offline — lokale Daten');
     } else {
-      document.getElementById('einkauf-content').innerHTML = `<div class="loading">⚠️ Fehler: ${e.message}</div>`;
+      console.error(e);
+      document.getElementById('einkauf-content').innerHTML = `<div class="loading">⚠️ Fehler beim Laden. Bitte erneut versuchen.</div>`;
     }
   }
 }
