@@ -711,19 +711,27 @@ function showMonth() {
 function closeMonth() { document.getElementById('month-screen').classList.remove('open'); setTab('heute'); }
 function showMain() { setTab('heute'); document.getElementById('month-screen').classList.remove('open'); document.getElementById('einkauf-screen').classList.remove('open'); }
 
-const CHEFIN_EMAIL = 'mirjam.walenta@gmail.com';
+// Rollenprüfung über dieselbe Tabelle wie team.html / Mitarbeiterhandbuch_App.html
+// (teamapp_persons.rolle) statt eines hart codierten E-Mail-Vergleichs — eine
+// Wahrheit über "wer ist Inhaberin", zentral in der Team-Verwaltung gepflegt.
+async function istAktuellInhaberin() {
+  try {
+    const { data } = await AUTH_CLIENT.auth.getSession();
+    const email = data?.session?.user?.email;
+    if (!email) return false;
+    const rows = await sbFetch(`teamapp_persons?email=eq.${encodeURIComponent(email)}&aktiv=eq.true&select=rolle`);
+    return rows?.[0]?.rolle === 'inhaberin';
+  } catch (e) { return false; }
+}
 
-function toggleAdmin() {
+async function toggleAdmin() {
   const s = document.getElementById('admin-screen');
   if(s.classList.contains('open')) { s.classList.remove('open'); return; }
-  AUTH_CLIENT.auth.getSession().then(({data}) => {
-    const eingeloggteEmail = data && data.session && data.session.user && data.session.user.email;
-    if (eingeloggteEmail && eingeloggteEmail.toLowerCase() === CHEFIN_EMAIL.toLowerCase()) {
-      s.classList.add('open'); renderAdmin();
-    } else {
-      showToast('❌ Nur die Chefin hat Zugriff auf diesen Bereich');
-    }
-  });
+  if (await istAktuellInhaberin()) {
+    s.classList.add('open'); renderAdmin();
+  } else {
+    showToast('❌ Nur die Inhaberin hat Zugriff auf diesen Bereich');
+  }
 }
 function closeAdmin() { document.getElementById('admin-screen').classList.remove('open'); }
 
