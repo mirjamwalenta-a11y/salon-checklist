@@ -1518,6 +1518,14 @@ async function ghdWrite(url, opts = {}) {
   });
 }
 
+// Wörni-Meldungen über Serverfunktionen (Team-Repo, Migration 20260927100000):
+// Die App liest die Wörni-Tabellen nicht mehr selbst; „schon da? dann
+// aktualisieren, sonst anlegen“ erledigt der Server.
+async function ghdRpc(fn, args) {
+  const r = await ghdWrite(`${GHD_URL}/rest/v1/rpc/${fn}`, { method: 'POST', body: JSON.stringify(args) });
+  if (!r.ok) throw new Error(await r.text());
+}
+
 async function woerniChecklistePruefen() {
   try {
     const jetzt = new Date();
@@ -1570,33 +1578,19 @@ async function woerniChecklistePruefen() {
     const titel = `Checkliste heute nicht vollständig – ${offeneBereicheDetails.length} Bereich(e) offen (${offeneAufgabenGesamt} Aufgaben)`;
     const naechster_schritt = `Checklisten-App öffnen und prüfen: ${offeneBereicheDetails.slice(0,2).join(', ')}`;
 
-    // Prüfen ob Aufgabe bereits existiert
-    const check = await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt&select=id`);
-    const existing = await check.json();
-
-    if (Array.isArray(existing) && existing.length > 0) {
-      await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt`, {
-        method: 'PATCH', headers: { 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ titel, naechster_schritt, geaendert_am: new Date().toISOString() })
-      });
-    } else {
-      await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben`, {
-        method: 'POST', headers: { 'Prefer': 'return=minimal' },
-        body: JSON.stringify({
-          typ: 'checkliste',
-          titel,
-          naechster_schritt,
-          verantwortlich: 'mirjam',
-          prioritaet,
-          status: 'neu',
-          app_kontext: 'checklisten',
-          fach_kontext: 'tagescheck',
-          signal_key: SIGNAL_KEY,
-          erstellt_von: 'system',
-          erstellt_am: new Date().toISOString()
-        })
-      });
-    }
+    await ghdRpc('ghd_aufgabe_melden', {
+      p_signal_key: SIGNAL_KEY,
+      p_daten: {
+        typ: 'checkliste',
+        titel,
+        naechster_schritt,
+        verantwortlich: 'mirjam',
+        prioritaet,
+        app_kontext: 'checklisten',
+        fach_kontext: 'tagescheck',
+        erstellt_von: 'system'
+      }
+    });
   } catch(e) { console.warn('Wörni Checklisten-Signal fehlgeschlagen:', e); }
 }
 
@@ -1605,24 +1599,11 @@ async function woerniChecklistePruefen() {
 // nutzt denselben ghdWrite()-Helfer (Session-Token, kein anon-Key bei Writes).
 async function ghd_ereignisSchreiben(app, typ, titel, prioritaet, payload) {
   try {
-    // order=erstellt_am.desc: das neueste bestehende Ereignis wird aktualisiert,
-    // etwaige weitere (bereits doppelt entstandene) werden unten aufgeräumt.
-    const _r = await ghdWrite(`${GHD_URL}/rest/v1/ghd_ereignisse?app=eq.${encodeURIComponent(app)}&typ=eq.${encodeURIComponent(typ)}&gelesen=eq.false&select=id&order=erstellt_am.desc`);
-    const _ex = await _r.json();
-    if (Array.isArray(_ex) && _ex.length > 0) {
-      const _neuestesId = _ex[0].id;
-      await ghdWrite(`${GHD_URL}/rest/v1/ghd_ereignisse?id=eq.${_neuestesId}`,
-        { method: 'PATCH', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify({ titel, prioritaet, erstellt_am: new Date().toISOString(), payload: payload || null }) });
-      // Bereits vorhandene weitere Duplikate desselben Falls aufräumen (als gelesen markieren)
-      if (_ex.length > 1) {
-        const _altIds = _ex.slice(1).map(e => e.id).join(',');
-        await ghdWrite(`${GHD_URL}/rest/v1/ghd_ereignisse?id=in.(${_altIds})`,
-          { method: 'PATCH', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify({ gelesen: true }) });
-      }
-    } else {
-      await ghdWrite(`${GHD_URL}/rest/v1/ghd_ereignisse`,
-        { method: 'POST', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify({ app, typ, titel, prioritaet, payload: payload || null, gelesen: false }) });
-    }
+    // Neuestes ungelesenes Ereignis gleicher Art aktualisieren, Doppelte als
+    // gelesen markieren, sonst neu anlegen — erledigt der Server.
+    await ghdRpc('ghd_ereignis_melden', {
+      p_app: app, p_typ: typ, p_titel: titel, p_prioritaet: prioritaet, p_payload: payload || null
+    });
   } catch(e) { console.warn('ghd_ereignis fehlgeschlagen:', e); }
 }
 
@@ -1659,10 +1640,7 @@ async function woerniEinkaufPruefen() {
 
     if (fehlendeArtikel.length === 0) {
       // Aufgabe als erledigt markieren falls vorhanden
-      await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt`, {
-        method: 'PATCH', headers: { 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ status: 'erledigt', erledigt_am: new Date().toISOString(), erledigt_von: 'system', geaendert_am: new Date().toISOString() })
-      });
+      await ghdRpc('ghd_aufgabe_erledigt', { p_signal_key: SIGNAL_KEY, p_erledigt_von: 'system' });
       return;
     }
 
@@ -1672,32 +1650,19 @@ async function woerniEinkaufPruefen() {
     // Kein zusätzliches Ereignis in "Neu aus Apps": Dieser Führungsfall wird bereits
     // vollständig über die signal_key-basierte Aufgabe unten geführt (Duplikat sonst möglich).
 
-    const check = await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt&select=id`);
-    const existing = await check.json();
-
-    if (Array.isArray(existing) && existing.length > 0) {
-      await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben?signal_key=eq.${SIGNAL_KEY}&status=neq.erledigt`, {
-        method: 'PATCH', headers: { 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ titel, naechster_schritt, geaendert_am: new Date().toISOString() })
-      });
-    } else {
-      await ghdWrite(`${GHD_URL}/rest/v1/ghd_aufgaben`, {
-        method: 'POST', headers: { 'Prefer': 'return=minimal' },
-        body: JSON.stringify({
-          typ: 'einkauf',
-          titel,
-          naechster_schritt,
-          verantwortlich: 'mirjam',
-          prioritaet: 'diese-woche',
-          status: 'neu',
-          app_kontext: 'checklisten',
-          fach_kontext: 'einkauf',
-          signal_key: SIGNAL_KEY,
-          erstellt_von: 'system',
-          erstellt_am: new Date().toISOString()
-        })
-      });
-    }
+    await ghdRpc('ghd_aufgabe_melden', {
+      p_signal_key: SIGNAL_KEY,
+      p_daten: {
+        typ: 'einkauf',
+        titel,
+        naechster_schritt,
+        verantwortlich: 'mirjam',
+        prioritaet: 'diese-woche',
+        app_kontext: 'checklisten',
+        fach_kontext: 'einkauf',
+        erstellt_von: 'system'
+      }
+    });
   } catch(e) { console.warn('Wörni Einkauf-Signal fehlgeschlagen:', e); }
 }
 
